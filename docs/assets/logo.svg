@@ -1,9 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <rect width="512" height="512" rx="116" fill="#FFD84A"/>
-  <!-- speech bubble = the talking head / pitch -->
-  <path d="M120 112h272a40 40 0 0 1 40 40v168a40 40 0 0 1-40 40H214l-74 58a10 10 0 0 1-16-8v-50h-4a40 40 0 0 1-40-40V152a40 40 0 0 1 40-40z" fill="#16130A"/>
-  <!-- play = the video -->
-  <path d="M222 178c0-12 13-19 23-13l96 58c10 6 10 20 0 26l-96 58c-10 6-23-1-23-13z" fill="#FFD84A"/>
-  <!-- caption line -->
-  <rect x="300" y="404" width="132" height="24" rx="12" fill="#16130A"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><rect width="512" height="512" fill="#FFD84A" rx="116"/><path fill="#16130A" d="M120 112h272a40 40 0 0 1 40 40v168a40 40 0 0 1-40 40H214l-74 58a10 10 0 0 1-16-8v-50h-4a40 40 0 0 1-40-40V152a40 40 0 0 1 40-40z"/><path fill="#FFD84A" d="M222 178c0-12 13-19 23-13l96 58c10 6 10 20 0 26l-96 58c-10 6-23-1-23-13z"/><rect width="132" height="24" x="300" y="404" fill="#16130A" rx="12"/></svg>

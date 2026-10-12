@@ -1,0 +1,53 @@
+name: Order a video (done for you)
+description: Send your talking-head take and we'll deliver the finished demo video.
+title: "Order: "
+labels: ["order"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Launch offer:** the first 10 orders pay only after delivery, and only if you're happy with the video.
+        Everything here is public. If you'd rather keep it private, DM [@codeswithroh](https://x.com/codeswithroh) instead.
+  - type: dropdown
+    id: tier
+    attributes:
+      label: Package
+      options:
+        - Hackathon · $49 · 24h · up to 3 min
+        - Launch · $249 · 48h · 16:9 + vertical 9:16 cut · 1 revision
+        - Founder · $599/month · 4 videos a month
+    validations:
+      required: true
+  - type: input
+    id: take
+    attributes:
+      label: Link to your recording
+      description: Google Drive, Dropbox, Loom or YouTube (unlisted is fine). Read your script once to the camera; stumbles are OK.
+    validations:
+      required: true
+  - type: input
+    id: product
+    attributes:
+      label: Product link
+      description: Live URL, demo account or repo. We film the product for you.
+    validations:
+      required: true
+  - type: textarea
+    id: script
+    attributes:
+      label: Script (optional)
+      description: Paste it to get exact captions and emphasis. Mark key words with **bold**.
+  - type: input
+    id: deadline
+    attributes:
+      label: Deadline
+      placeholder: e.g. Devpost submission closes Oct 23, 3pm EDT
+    validations:
+      required: true
+  - type: input
+    id: contact
+    attributes:
+      label: Where should we send the video?
+      placeholder: X handle, Discord, or email
+    validations:
+      required: true

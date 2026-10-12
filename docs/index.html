@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pitch Video Studio · Your demo video, done in 24 hours</title>
+<meta name="description" content="Record yourself explaining your product once. Get back a finished demo video: product footage cut to your words, captions, sound design and music. From $49, delivered in 24 hours." />
+<meta property="og:title" content="Pitch Video Studio" />
+<meta property="og:description" content="Record your pitch once. Get a finished demo video in 24 hours. Hackathons from $49." />
+<meta property="og:image" content="https://codeswithroh.github.io/pitch-video/assets/hero.jpg" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="icon" href="assets/logo.svg" />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet" />
+<style>
+  :root { --bg:#0c0d13; --panel:#14161f; --line:#262a38; --ink:#f4f2ec; --muted:#a6a3b2; --y:#ffd84a; --yk:#16130a; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:400 17px/1.6 "IBM Plex Sans", system-ui, sans-serif; padding-inline:20px; }
+  a { color:inherit; }
+  .wrap { max-width:1080px; margin:0 auto; }
+  nav { display:flex; align-items:center; justify-content:space-between; gap:16px; padding-block:22px; }
+  .brand { display:flex; align-items:center; gap:10px; font:800 20px "Bricolage Grotesque", sans-serif; text-decoration:none; }
+  .brand img { width:34px; height:34px; }
+  .nav a.small { font:500 14px "IBM Plex Mono", monospace; color:var(--muted); text-decoration:none; }
+  .hero { display:grid; grid-template-columns: minmax(0,1fr) minmax(0,1.15fr); gap:44px; align-items:center; padding-block:40px 56px; }
+  @media (max-width:860px){ .hero { grid-template-columns:1fr; } }
+  .eyebrow { font:500 13px "IBM Plex Mono", monospace; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+  h1 { font:800 clamp(38px,6vw,62px)/1.02 "Bricolage Grotesque", sans-serif; letter-spacing:-.02em; margin:12px 0 18px; text-wrap:balance; }
+  h1 em { font-style:normal; color:var(--y); }
+  .lede { font-size:19px; color:#d6d3df; max-width:34ch; }
+  .cta { display:flex; flex-wrap:wrap; gap:12px; margin-top:26px; }
+  .btn { display:inline-flex; align-items:center; gap:8px; padding:14px 22px; border-radius:12px; font:600 16px "IBM Plex Sans"; text-decoration:none; border:1px solid var(--line); }
+  .btn.primary { background:var(--y); color:var(--yk); border-color:var(--y); }
+  .btn:focus-visible { outline:3px solid var(--y); outline-offset:3px; }
+  .note { margin-top:14px; font-size:14px; color:var(--muted); }
+  .note b { color:var(--y); font-weight:600; }
+  .media { border-radius:16px; overflow:hidden; border:1px solid var(--line); box-shadow:0 30px 80px rgba(0,0,0,.5); }
+  .media img { display:block; width:100%; }
+  section { padding-block:56px; border-top:1px solid var(--line); }
+  h2 { font:800 34px/1.1 "Bricolage Grotesque", sans-serif; margin:0 0 10px; text-wrap:balance; }
+  .sub { color:var(--muted); margin:0 0 28px; max-width:60ch; }
+  .steps { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; counter-reset:s; }
+  .step { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:22px; min-width:0; }
+  .step h3 { margin:0 0 6px; font:700 19px "Bricolage Grotesque"; }
+  .step h3::before { counter-increment:s; content:counter(s); display:inline-grid; place-items:center; width:26px; height:26px; margin-right:10px; border-radius:7px; background:var(--y); color:var(--yk); font-size:15px; }
+  .step p { margin:0; color:var(--muted); font-size:15.5px; }
+  .video { position:relative; aspect-ratio:16/9; border-radius:16px; overflow:hidden; border:1px solid var(--line); }
+  .video iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
+  .prices { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; }
+  .price { background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:26px; display:flex; flex-direction:column; min-width:0; }
+  .price.pop { border-color:var(--y); }
+  .price h3 { margin:0; font:700 20px "Bricolage Grotesque"; }
+  .amt { font:800 44px/1 "Bricolage Grotesque"; margin:12px 0 4px; }
+  .amt small { font:500 16px "IBM Plex Sans"; color:var(--muted); }
+  .price ul { padding-left:18px; margin:14px 0 22px; color:#d6d3df; font-size:15.5px; flex:1; }
+  .price li { margin:5px 0; }
+  .tag { font:500 12px "IBM Plex Mono"; color:var(--yk); background:var(--y); padding:3px 8px; border-radius:999px; align-self:flex-start; margin-bottom:10px; }
+  .compare { margin-top:22px; color:var(--muted); font-size:15px; }
+  details { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px 20px; margin:10px 0; }
+  summary { cursor:pointer; font-weight:600; }
+  details p { margin:10px 0 0; color:#d6d3df; }
+  footer { padding-block:40px 60px; border-top:1px solid var(--line); color:var(--muted); font-size:14px; display:flex; flex-wrap:wrap; gap:14px; justify-content:space-between; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <a class="brand" href="./"><img src="assets/logo.svg" alt="" />Pitch Video Studio</a>
+    <div class="nav"><a class="small" href="https://github.com/codeswithroh/pitch-video">Open-source skill ↗</a></div>
+  </nav>
+
+  <div class="hero">
+    <div>
+      <div class="eyebrow">Demo videos for builders</div>
+      <h1>Record your pitch once. <em>Get the finished demo video tomorrow.</em></h1>
+      <p class="lede">Send a webcam take of you explaining your product. We film your app, cut every shot to your words, and add captions, sound design and music.</p>
+      <div class="cta">
+        <a class="btn primary" href="https://github.com/codeswithroh/pitch-video/issues/new?template=order-video.yml">Order a video →</a>
+        <a class="btn" href="https://x.com/codeswithroh">DM on X</a>
+      </div>
+      <p class="note"><b>Launch offer:</b> the first 10 orders pay only after delivery, and only if you love it.</p>
+    </div>
+    <div class="media"><img src="assets/hero.jpg" alt="A raw webcam recording on the left becomes a finished demo with app footage, captions and a face bubble on the right" /></div>
+  </div>
+
+  <section>
+    <h2>A real example</h2>
+    <p class="sub">A hackathon submission. Recorded once on a laptop, edited end to end by the same pipeline we'd use for your video.</p>
+    <div class="video"><iframe src="https://www.youtube-nocookie.com/embed/BbZI25i2Mgo" title="Nightfall demo video" allow="accelerometer; encrypted-media; picture-in-picture" allowfullscreen></iframe></div>
+  </section>
+
+  <section>
+    <h2>How it works</h2>
+    <p class="sub">You talk. We do everything else.</p>
+    <div class="steps">
+      <div class="step"><h3>Record</h3><p>Read your script to your webcam once. Stumbles are fine. Send the file and your product link.</p></div>
+      <div class="step"><h3>We produce</h3><p>We trim pauses, film your product, cut it to your sentences, and add captions, a face bubble, animations, sound and music.</p></div>
+      <div class="step"><h3>We check, you ship</h3><p>Lip sync and audio are measured before delivery. You get a 1080p file ready for Devpost, YouTube or Product Hunt.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Pricing</h2>
+    <p class="sub">Flat prices. No calls needed.</p>
+    <div class="prices">
+      <div class="price">
+        <h3>Hackathon</h3>
+        <div class="amt">$49</div>
+        <ul><li>Up to 3 minutes</li><li>Delivered in 24 hours</li><li>Captions, sound design, music</li><li>Devpost and YouTube ready</li></ul>
+        <a class="btn primary" href="https://github.com/codeswithroh/pitch-video/issues/new?template=order-video.yml">Order</a>
+      </div>
+      <div class="price pop">
+        <span class="tag">Most popular</span>
+        <h3>Launch</h3>
+        <div class="amt">$249</div>
+        <ul><li>Everything in Hackathon</li><li>Vertical 9:16 cut for X, Reels and Shorts</li><li>Animated explainer scene</li><li>1 revision, delivered in 48 hours</li></ul>
+        <a class="btn primary" href="https://github.com/codeswithroh/pitch-video/issues/new?template=order-video.yml">Order</a>
+      </div>
+      <div class="price">
+        <h3>Founder</h3>
+        <div class="amt">$599<small> /month</small></div>
+        <ul><li>4 videos a month</li><li>Release notes, investor updates, launches</li><li>Your brand colors and fonts</li><li>Priority turnaround</li></ul>
+        <a class="btn" href="https://github.com/codeswithroh/pitch-video/issues/new?template=order-video.yml">Start</a>
+      </div>
+    </div>
+    <p class="compare">For comparison, product demo videos from agencies typically cost $3,000 to $15,000.</p>
+  </section>
+
+  <section>
+    <h2>Questions</h2>
+    <details><summary>Do I need to be good on camera?</summary><p>No. Read your script once, at your normal pace. We cut the pauses and tighten the pacing, so it comes out sounding confident.</p></details>
+    <details><summary>Is it allowed in hackathons?</summary><p>Yes. Hackathons judge your project, and the video is how you present it. It's your voice, your product and your words. Check your event's rules for anything specific, such as length limits.</p></details>
+    <details><summary>Can I do it myself for free?</summary><p>Yes. The whole pipeline is open source as an agent skill. This service is for when you'd rather spend the evening building than setting up ffmpeg.</p></details>
+    <details><summary>How do I pay?</summary><p>For the launch offer, you pay after you've seen the finished video. We send a payment link with the delivery.</p></details>
+  </section>
+
+  <footer>
+    <span>Pitch Video Studio · by <a href="https://x.com/codeswithroh">@codeswithroh</a></span>
+    <span><a href="https://github.com/codeswithroh/pitch-video">The open-source skill</a></span>
+  </footer>
+</div>
+</body>
+</html>

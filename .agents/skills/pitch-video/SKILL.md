@@ -40,6 +40,7 @@ All scripts live in `scripts/`. Work in a fresh dir (scratchpad): `WORK=<dir>; c
   "pause": {"scene": 1.0, "long": 0.6, "short_max": 0.8, "head": 0.25, "tail": 2.5},
   "holds": [{"after": "Until now", "keep": 1.8}],
   "music": "synth",                      // "synth" | "none" | path to a track
+  "credit": true,                        // small "Edited by an agent · pitch-video" line on the end card; false removes it
   "end": {"title": "NIGHTFALL", "tagline": "Everyone's in the dark. <b>Even the server.</b>",
           "links": ["▶ app.example.com", "github.com/you/repo"], "by": "Built with …"},
   "scenes": [

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.0 (2026-10-13)
+
+- End-card credit line ("Edited by an agent · pitch-video"), on by default. Opt out with `"credit": false`.
+- README in 13 more languages.
+- Copy-paste agent prompt in the Quick start.
+
 ## 1.0.0 (2026-10-12)
 
 First public release.

@@ -48,7 +48,8 @@ for (const [i, x] of t.plan.entries()) {
 }
 const e = P.end || {};
 await shot("end.png", `<div class="end"><h1>${e.title || P.title || ""}</h1>${e.tagline ? `<div class="tag">${e.tagline}</div>` : ""}
-  <div class="links">${(e.links || []).map((l) => `<span>${l}</span>`).join("")}</div>${e.by ? `<div class="by">${e.by}</div>` : ""}</div>`);
+  <div class="links">${(e.links || []).map((l) => `<span>${l}</span>`).join("")}</div>${e.by ? `<div class="by">${e.by}</div>` : ""}
+  ${P.credit === false ? "" : `<div class="credit">Edited by an agent · github.com/codeswithroh/pitch-video</div>`}</div>`);
 const px = 1920 - PIP.margin - PIP.size, py = 1080 - PIP.margin - PIP.size;
 await shot("pipframe.png", `<div class="pipframe" style="left:${px - 5}px;top:${py - 5}px;width:${PIP.size + 10}px;height:${PIP.size + 10}px"></div>`);
 await p.setViewportSize({ width: PIP.size, height: PIP.size });

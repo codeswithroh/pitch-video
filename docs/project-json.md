@@ -20,6 +20,7 @@
 | `holds` | `[]` | `[{ "after": "Until now", "keep": 1.8 }]`: a dramatic beat after a line. |
 | `music` | `"synth"` | `"synth"` (soft pad), `"none"`, or a path to an audio file. |
 | `music_gain` / `sfx_gain` | `0.55` / `0.85` | Bed levels before ducking. |
+| `credit` | `true` | A small "Edited by an agent · github.com/codeswithroh/pitch-video" line at the bottom of the end card. Set `false` to remove it. |
 | `end` | | `{ title, tagline, links: [..], by }`. Tagline accepts `<b>`. |
 | `sfx_auto` | all `true` | Turn off automatic `whoosh`, `hook`, `title`, `card` or `end` cues. |
 

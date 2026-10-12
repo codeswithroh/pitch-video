@@ -34,6 +34,15 @@ Everything runs locally with ffmpeg, whisper.cpp and Playwright. No uploads, no 
 
 ## Quick start
 
+### 0. Or let your agent do everything
+
+Copy this into Claude Code (or any coding agent):
+
+```text
+Install the pitch-video skill from https://github.com/codeswithroh/pitch-video
+(run its install.sh), then make a pitch video from my recording at ~/Movies/my_pitch.mov.
+```
+
 ### 1. Install the skill
 
 ```bash

@@ -2,6 +2,8 @@
 
 [English](README.md) · [简体中文](README_zh.md) · [繁體中文](README_zh-TW.md) · [日本語](README_ja.md) · **한국어** · [Español](README_es.md) · [Português (Brasil)](README_pt-BR.md) · [Français](README_fr.md) · [Deutsch](README_de.md) · [Русский](README_ru.md) · [हिन्दी](README_hi.md) · [Bahasa Indonesia](README_id.md) · [Tiếng Việt](README_vi.md) · [Türkçe](README_tr.md)
 
+<img src="docs/assets/logo.svg" alt="Pitch Video logo" width="96" />
+
 # Pitch Video
 
 ### 피치를 읽는 모습만 녹화하세요. 에이전트가 출시용 데모 영상으로 만들어 줍니다.

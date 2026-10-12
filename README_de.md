@@ -2,6 +2,8 @@
 
 [English](README.md) · [简体中文](README_zh.md) · [繁體中文](README_zh-TW.md) · [日本語](README_ja.md) · [한국어](README_ko.md) · [Español](README_es.md) · [Português (Brasil)](README_pt-BR.md) · [Français](README_fr.md) · **Deutsch** · [Русский](README_ru.md) · [हिन्दी](README_hi.md) · [Bahasa Indonesia](README_id.md) · [Tiếng Việt](README_vi.md) · [Türkçe](README_tr.md)
 
+<img src="docs/assets/logo.svg" alt="Pitch Video logo" width="96" />
+
 # Pitch Video
 
 ### Nimm dich beim Vorlesen deines Pitches auf. Dein Agent macht daraus ein fertiges Launch-Demovideo.

@@ -1,0 +1,362 @@
+[
+ {
+  "start": 5.94,
+  "end": 8.908,
+  "text": "Every onchain game is played with the cards face up.",
+  "html": "Every onchain game is played with the cards face up."
+ },
+ {
+  "start": 9.474,
+  "end": 12.061,
+  "text": "If it lives on the blockchain, anyone can read it",
+  "html": "If it lives on the blockchain, anyone can read it"
+ },
+ {
+  "start": 12.72,
+  "end": 15.07,
+  "text": "including where your opponent is hiding.",
+  "html": "including <b>where your opponent is hiding</b>."
+ },
+ {
+  "start": 17.666,
+  "end": 18.803,
+  "text": "That's why fog of war",
+  "html": "That's why fog of war"
+ },
+ {
+  "start": 19.196,
+  "end": 20.645,
+  "text": "the heart of strategy games",
+  "html": "the heart of strategy games"
+ },
+ {
+  "start": 21.18,
+  "end": 22.196,
+  "text": "and battle royales",
+  "html": "and battle royales"
+ },
+ {
+  "start": 22.649,
+  "end": 23.371,
+  "text": "has basically",
+  "html": "has basically"
+ },
+ {
+  "start": 23.857,
+  "end": 25.153,
+  "text": "been impossible onchain.",
+  "html": "been impossible onchain."
+ },
+ {
+  "start": 25.69,
+  "end": 26.224,
+  "text": "Until now.",
+  "html": "Until now."
+ },
+ {
+  "start": 28.597,
+  "end": 29.342,
+  "text": "This is Nightfall :",
+  "html": "This is <b>Nightfall</b> :"
+ },
+ {
+  "start": 29.799,
+  "end": 31.836,
+  "text": "a real-time battle royale on Solana",
+  "html": "a real-time battle royale on Solana"
+ },
+ {
+  "start": 32.281,
+  "end": 34.55,
+  "text": "where you only see what your torch lights.",
+  "html": "where you only see what your torch lights."
+ },
+ {
+  "start": 35.461,
+  "end": 37.0,
+  "text": "Pick your hero, pick your arena,",
+  "html": "Pick your hero, pick your arena,"
+ },
+ {
+  "start": 37.0,
+  "end": 38.539,
+  "text": "night or day and hit play.",
+  "html": "night or day and hit play."
+ },
+ {
+  "start": 39.021,
+  "end": 40.708,
+  "text": "No wallet popups, no setup.",
+  "html": "No wallet popups, no setup."
+ },
+ {
+  "start": 42.865,
+  "end": 45.378,
+  "text": "While the arena spins up onchain, you warm up:",
+  "html": "While the arena spins up onchain, you warm up:"
+ },
+ {
+  "start": 45.905,
+  "end": 47.825,
+  "text": "walk, hit the dummy, shoot, blink.",
+  "html": "walk, hit the dummy, shoot, blink."
+ },
+ {
+  "start": 48.321,
+  "end": 50.743,
+  "text": "By the time the night is ready, you already know",
+  "html": "By the time the night is ready, you already know"
+ },
+ {
+  "start": 51.326,
+  "end": 52.372,
+  "text": "how to play.",
+  "html": "how to play."
+ },
+ {
+  "start": 54.167,
+  "end": 55.955,
+  "text": "Out here, you can't see anyone.",
+  "html": "Out here, <b>you can't see anyone</b>."
+ },
+ {
+  "start": 56.463,
+  "end": 57.481,
+  "text": "You can only hear them",
+  "html": "You can only hear them"
+ },
+ {
+  "start": 58.079,
+  "end": 58.448,
+  "text": "footsteps",
+  "html": "footsteps"
+ },
+ {
+  "start": 58.829,
+  "end": 59.352,
+  "text": "from the dark,",
+  "html": "from the dark,"
+ },
+ {
+  "start": 59.899,
+  "end": 61.278,
+  "text": "coming from the south-west.",
+  "html": "coming from the south-west."
+ },
+ {
+  "start": 62.345,
+  "end": 62.567,
+  "text": "Then",
+  "html": "Then"
+ },
+ {
+  "start": 63.046,
+  "end": 64.765,
+  "text": "someone steps into your light.",
+  "html": "someone steps into your light."
+ },
+ {
+  "start": 69.449,
+  "end": 72.396,
+  "text": "Grab a battle axe, a war hammer, an ender pearl",
+  "html": "Grab a battle axe, a war hammer, an ender pearl"
+ },
+ {
+  "start": 72.871,
+  "end": 74.056,
+  "text": "and stay inside the border.",
+  "html": "and stay inside the border."
+ },
+ {
+  "start": 74.729,
+  "end": 76.189,
+  "text": "Last one standing wins.",
+  "html": "<b>Last one standing wins.</b>"
+ },
+ {
+  "start": 79.218,
+  "end": 80.879,
+  "text": "And here's the part that matters.",
+  "html": "And here's the part that matters."
+ },
+ {
+  "start": 81.561,
+  "end": 82.649,
+  "text": "Let's try to cheat.",
+  "html": "Let's try to cheat."
+ },
+ {
+  "start": 86.331,
+  "end": 89.039,
+  "text": "I'll ask the network for every player's position\u2026",
+  "html": "I'll ask the network for every player's position\u2026"
+ },
+ {
+  "start": 89.793,
+  "end": 90.029,
+  "text": "null.",
+  "html": "<b>null</b>."
+ },
+ {
+  "start": 90.735,
+  "end": 91.834,
+  "text": "The other players' views\u2026",
+  "html": "The other players' views\u2026"
+ },
+ {
+  "start": 92.612,
+  "end": 92.895,
+  "text": "null.",
+  "html": "<b>null.</b>"
+ },
+ {
+  "start": 93.615,
+  "end": 94.314,
+  "text": "Even I",
+  "html": "Even I"
+ },
+ {
+  "start": 94.831,
+  "end": 96.491,
+  "text": "the host who created this match",
+  "html": "the host who created this match"
+ },
+ {
+  "start": 97.153,
+  "end": 97.717,
+  "text": "can't see them.",
+  "html": "<b>can't see them</b>."
+ },
+ {
+  "start": 100.244,
+  "end": 102.093,
+  "text": "Every position is sealed inside",
+  "html": "Every position is sealed inside"
+ },
+ {
+  "start": 102.692,
+  "end": 104.908,
+  "text": "MagicBlock's Private Ephemeral Rollup",
+  "html": "<b>MagicBlock's Private Ephemeral Rollup</b>"
+ },
+ {
+  "start": 105.337,
+  "end": 106.951,
+  "text": "an Intel TDX enclave.",
+  "html": "an Intel TDX enclave."
+ },
+ {
+  "start": 107.636,
+  "end": 109.072,
+  "text": "Each move runs inside it",
+  "html": "Each move runs inside it"
+ },
+ {
+  "start": 109.49,
+  "end": 110.85,
+  "text": "and writes each player",
+  "html": "and writes each player"
+ },
+ {
+  "start": 111.33,
+  "end": 113.124,
+  "text": "only what they are allowed to see.",
+  "html": "only what they are allowed to see."
+ },
+ {
+  "start": 115.452,
+  "end": 118.71,
+  "text": "VRF rolls the spawns, a crank shrinks the border,",
+  "html": "<b>VRF</b> rolls the spawns, a <b>crank</b> shrinks the border,"
+ },
+ {
+  "start": 119.072,
+  "end": 121.246,
+  "text": "and every step is a real-time,",
+  "html": "and every step is a real-time,"
+ },
+ {
+  "start": 121.804,
+  "end": 122.644,
+  "text": "gasless transaction.",
+  "html": "gasless transaction."
+ },
+ {
+  "start": 125.638,
+  "end": 128.757,
+  "text": "Spectators watch everyone on a short broadcast delay,",
+  "html": "Spectators watch everyone on a short broadcast delay,"
+ },
+ {
+  "start": 129.276,
+  "end": 129.802,
+  "text": "so nobody",
+  "html": "so nobody"
+ },
+ {
+  "start": 130.214,
+  "end": 130.829,
+  "text": "can feed them",
+  "html": "can feed them"
+ },
+ {
+  "start": 131.311,
+  "end": 131.707,
+  "text": "positions.",
+  "html": "positions."
+ },
+ {
+  "start": 132.355,
+  "end": 133.503,
+  "text": "And when the night ends,",
+  "html": "And when the night ends,"
+ },
+ {
+  "start": 134.027,
+  "end": 135.294,
+  "text": "the world is revealed",
+  "html": "the world is revealed"
+ },
+ {
+  "start": 135.734,
+  "end": 136.46,
+  "text": "and the winner",
+  "html": "and the winner"
+ },
+ {
+  "start": 136.858,
+  "end": 138.094,
+  "text": "is paid onchain.",
+  "html": "is paid onchain."
+ },
+ {
+  "start": 140.663,
+  "end": 141.137,
+  "text": "Nightfall.",
+  "html": "<b>Nightfall.</b>"
+ },
+ {
+  "start": 141.565,
+  "end": 142.657,
+  "text": "Everyone's in the dark",
+  "html": "<b>Everyone's in the dark</b>"
+ },
+ {
+  "start": 143.16,
+  "end": 144.089,
+  "text": "even the server.",
+  "html": "<b>even the server.</b>"
+ },
+ {
+  "start": 144.696,
+  "end": 144.874,
+  "text": "Come",
+  "html": "Come"
+ },
+ {
+  "start": 145.416,
+  "end": 145.587,
+  "text": "play.",
+  "html": "play."
+ }
+]

@@ -1,0 +1,19 @@
+name: check
+on: [push, pull_request]
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - name: Python compiles
+        run: python -m py_compile .agents/skills/pitch-video/scripts/*.py
+      - name: Node scripts parse
+        run: for f in .agents/skills/pitch-video/scripts/*.mjs .agents/skills/pitch-video/templates/*.mjs; do node --check "$f"; done
+      - name: Shell scripts parse
+        run: bash -n install.sh && bash -n .agents/skills/pitch-video/scripts/setup.sh
+      - name: Example project is valid JSON
+        run: python -c "import json; json.load(open('examples/nightfall/project.json')); json.load(open('examples/nightfall/captions.json'))"

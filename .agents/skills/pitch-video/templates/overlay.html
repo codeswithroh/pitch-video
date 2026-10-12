@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<link id="fonts" rel="stylesheet" />
+<style>
+  :root { --accent: #ffe040; --ink: #ffffff; --soft: #c9d2ff; --panel: rgba(6, 8, 18, 0.8); --head: "Inter"; --body: "Inter"; }
+  html, body { margin: 0; width: 1920px; height: 1080px; background: transparent; overflow: hidden; }
+  * { box-sizing: border-box; }
+  #root { position: absolute; inset: 0; }
+  /* Captions: big, high-contrast, bottom-centre; shifted left while the face bubble is on screen. */
+  .cap { position: absolute; left: 50%; bottom: 64px; transform: translateX(-50%); max-width: 1320px;
+    padding: 14px 28px 16px; background: var(--panel); border: 2px solid rgba(255,255,255,0.08); border-radius: 14px;
+    box-shadow: 0 10px 40px rgba(0,0,0,.45); font: 700 44px/1.18 var(--body), sans-serif; color: var(--ink); text-align: center; }
+  .cap b { color: var(--accent); font-weight: 800; }
+  .cap.pip { transform: translateX(calc(-50% - 210px)); max-width: 1180px; }
+  /* Scene chip, top-left. */
+  .chip { position: absolute; left: 48px; top: 44px; display: flex; align-items: center; gap: 14px; padding: 10px 18px 10px 12px;
+    background: var(--panel); border-radius: 10px; border: 2px solid rgba(255,255,255,0.1);
+    font: 700 22px var(--head), sans-serif; color: var(--ink); letter-spacing: 1.5px; text-transform: uppercase; }
+  .chip .n { background: var(--accent); color: #000; padding: 2px 9px; border-radius: 6px; font-size: 20px; }
+  /* Full-screen statement ("UNTIL NOW."). */
+  .big { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 18px; }
+  .big h1 { margin: 0; font: 800 124px var(--head), sans-serif; color: var(--ink); letter-spacing: 4px; text-align: center;
+    text-shadow: 0 0 60px color-mix(in srgb, var(--accent) 35%, transparent); }
+  .big p { margin: 0; font: 500 40px var(--body), sans-serif; color: var(--soft); }
+  /* End card. */
+  .end { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px;
+    background: radial-gradient(ellipse at center, rgba(5,7,15,.6), rgba(5,7,15,.95) 72%); }
+  .end h1 { margin: 0; font: 800 140px var(--head), sans-serif; color: var(--ink); letter-spacing: 6px; }
+  .end .tag { font: 500 46px var(--body), sans-serif; color: var(--soft); } .end .tag b { color: var(--accent); }
+  .end .links { display: flex; gap: 18px; margin-top: 10px; }
+  .end .links span { padding: 12px 22px; background: rgba(0,0,0,.6); border-radius: 10px; border: 2px solid rgba(255,255,255,.12);
+    font: 700 24px var(--body), sans-serif; color: var(--ink); }
+  .end .links span:first-child { background: var(--accent); color: #000; }
+  .end .by { font: 500 28px var(--body), sans-serif; color: #8a90b0; }
+  .pipframe { position: absolute; border-radius: 28px; border: 5px solid var(--accent); box-shadow: 0 14px 40px rgba(0,0,0,.6); }
+</style>
+<style id="extra"></style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+  window.render = (html) => { document.getElementById("root").innerHTML = html; };
+</script>
+</body>
+</html>

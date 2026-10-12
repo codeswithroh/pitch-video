@@ -1,0 +1,289 @@
+{
+ "title": "NIGHTFALL",
+ "speed": 1.1,
+ "output": "out/demo.mp4",
+ "theme": {
+  "accent": "#ffe040",
+  "head": "Silkscreen",
+  "body": "Inter",
+  "google_fonts": "family=Inter:wght@500;700;800&family=Silkscreen:wght@400;700&family=VT323"
+ },
+ "holds": [
+  {
+   "after": "Until now",
+   "keep": 1.8
+  },
+  {
+   "after": "how to play",
+   "keep": 1.6
+  }
+ ],
+ "music": "synth",
+ "end": {
+  "title": "NIGHTFALL",
+  "tagline": "Everyone's in the dark. <b>Even the server.</b>",
+  "links": [
+   "\u25b6 nightfall-blitz.vercel.app",
+   "github.com/codeswithroh/nightfall"
+  ],
+  "by": "Built on MagicBlock \u00b7 Ephemeral Rollups \u00b7 Private ER (TEE) \u00b7 VRF \u00b7 Crank \u00b7 Solana"
+ },
+ "scenes": [
+  {
+   "title": "The hook",
+   "start": "Every onchain game",
+   "shots": [
+    {
+     "speaker": true
+    },
+    {
+     "from": "If it lives",
+     "rec": "player",
+     "t": 9.8
+    }
+   ]
+  },
+  {
+   "title": "The problem",
+   "start": "That's why fog of war",
+   "shots": [
+    {
+     "rec": "player",
+     "t": 18.8,
+     "card": "problem"
+    },
+    {
+     "from": "Until now",
+     "title": "UNTIL NOW."
+    }
+   ]
+  },
+  {
+   "title": "Meet Nightfall",
+   "start": "This is Nightfall",
+   "shots": [
+    {
+     "rec": "player",
+     "t": 29.9,
+     "to": 44.9
+    }
+   ]
+  },
+  {
+   "title": "Onboarding",
+   "start": "While the arena spins",
+   "shots": [
+    {
+     "rec": "player",
+     "t": 45.4,
+     "to": 56.0
+    },
+    {
+     "from": "how to play",
+     "rec": "player",
+     "t": 63.9,
+     "to": 67.0
+    }
+   ]
+  },
+  {
+   "title": "Gameplay",
+   "start": "Out here",
+   "shots": [
+    {
+     "rec": "player",
+     "t": 69.6,
+     "to": 76.2
+    },
+    {
+     "from": "Then",
+     "rec": "player",
+     "t": 86.4,
+     "to": 91.2
+    },
+    {
+     "from": "Grab a battle axe",
+     "rec": "player",
+     "t": 76.2,
+     "to": 82.2
+    }
+   ]
+  },
+  {
+   "title": "Try to cheat",
+   "start": "the part that matters",
+   "shots": [
+    {
+     "rec": "player",
+     "t": 82.2,
+     "to": 86.3
+    },
+    {
+     "from": "ask the network",
+     "rec": "player",
+     "t": 92.6,
+     "to": 102.0,
+     "zoom": "tr",
+     "pip": false
+    }
+   ]
+  },
+  {
+   "title": "How it works",
+   "start": "Every position is sealed",
+   "shots": [
+    {
+     "anim": "diagram"
+    }
+   ]
+  },
+  {
+   "title": "Spectate & verify",
+   "start": "Spectators watch",
+   "shots": [
+    {
+     "rec": "spectator",
+     "t": 102.6,
+     "to": 109.4
+    },
+    {
+     "from": "when the night ends",
+     "rec": "player",
+     "t": 112.2,
+     "to": 116.8
+    },
+    {
+     "from": "and the winner",
+     "rec": "player",
+     "t": 121.6,
+     "to": 125.4
+    }
+   ]
+  },
+  {
+   "title": "Nightfall",
+   "start": "Nightfall.",
+   "chip": false,
+   "shots": [
+    {
+     "speaker": true
+    }
+   ]
+  },
+  {
+   "title": "Come play",
+   "start": "Come",
+   "end_card": true,
+   "shots": [
+    {
+     "rec": "close",
+     "t": 133.0,
+     "to": 141.5
+    }
+   ]
+  }
+ ],
+ "sfx": [
+  {
+   "sound": "step",
+   "phrase": "footsteps",
+   "offset": 0.3,
+   "repeat": 5,
+   "every": 0.36,
+   "gain": 0.9,
+   "pan": -0.75
+  },
+  {
+   "sound": "sting",
+   "rec": "player",
+   "t": 86.9,
+   "gain": 0.55
+  },
+  {
+   "sound": "blink",
+   "rec": "player",
+   "t": 87.32
+  },
+  {
+   "sound": "hit",
+   "rec": "player",
+   "t": 88.25,
+   "gain": 0.75
+  },
+  {
+   "sound": "hit",
+   "rec": "player",
+   "t": 88.9,
+   "gain": 0.75
+  },
+  {
+   "sound": "hit",
+   "rec": "player",
+   "t": 89.6,
+   "gain": 0.75
+  },
+  {
+   "sound": "bighit",
+   "rec": "player",
+   "t": 90.1,
+   "gain": 0.9
+  },
+  {
+   "sound": "chime",
+   "rec": "player",
+   "t": 77.72,
+   "gain": 0.75
+  },
+  {
+   "sound": "fanfare",
+   "rec": "player",
+   "t": 64.4,
+   "gain": 0.7
+  },
+  {
+   "sound": "glitch",
+   "phrase": "ask the network",
+   "offset": 0.1,
+   "gain": 0.7
+  },
+  {
+   "sound": "denied",
+   "phrase": "null",
+   "edge": "end",
+   "offset": -0.4,
+   "gain": 0.8
+  },
+  {
+   "sound": "denied",
+   "phrase": "views",
+   "edge": "end",
+   "offset": -0.4,
+   "gain": 0.8
+  },
+  {
+   "sound": "lock",
+   "anim": "diagram",
+   "t": 1.8,
+   "gain": 0.85
+  },
+  {
+   "sound": "ticks",
+   "anim": "diagram",
+   "t": 16.4
+  },
+  {
+   "sound": "swell",
+   "phrase": "when the night ends",
+   "gain": 0.9
+  },
+  {
+   "sound": "coin",
+   "rec": "player",
+   "t": 123.68,
+   "gain": 0.8
+  }
+ ],
+ "pause": {
+  "tail": 4.0
+ }
+}

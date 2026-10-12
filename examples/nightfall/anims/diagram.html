@@ -1,0 +1,130 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=VT323&family=Inter:wght@600;800&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden;
+    background: radial-gradient(ellipse at 50% 40%, #121a35 0%, #070912 70%); }
+  * { box-sizing: border-box; }
+  .abs { position: absolute; }
+  .stars { position: absolute; inset: 0; background-image: radial-gradient(1px 1px at 10% 20%, #fff8, transparent), radial-gradient(1px 1px at 70% 15%, #fff6, transparent), radial-gradient(1px 1px at 40% 70%, #fff5, transparent), radial-gradient(1px 1px at 85% 60%, #fff6, transparent), radial-gradient(1px 1px at 25% 85%, #fff4, transparent); }
+  .player { left: 150px; width: 330px; height: 120px; display: flex; align-items: center; gap: 18px; padding: 16px;
+    background: rgba(10,12,24,.9); border: 2px solid #000; box-shadow: inset 0 0 0 2px #2b2f45; }
+  .head { width: 72px; height: 72px; border: 3px solid #000; image-rendering: pixelated; }
+  .pname { font: 700 22px Silkscreen, monospace; color: #fff; }
+  .psub { font: 26px VT323, monospace; color: #8a90b0; }
+  .enclave { left: 640px; top: 210px; width: 560px; height: 520px; border: 4px dashed #9a6bff; border-radius: 22px;
+    background: rgba(60, 30, 120, .18); }
+  .encl-label { left: 640px; top: 160px; width: 560px; text-align: center; font: 700 26px Silkscreen, monospace; color: #c9b4ff; letter-spacing: 1px; }
+  .tdx { padding: 8px 14px; background: #2a1a4a; border: 2px solid #9a6bff; font: 700 20px Silkscreen, monospace; color: #e6dcff; }
+  .world { left: 740px; top: 300px; width: 360px; height: 330px; background: #0b0d18; border: 3px solid #000; box-shadow: inset 0 0 0 3px #3a2a6a; }
+  .world .ttl { position: absolute; left: 0; right: 0; top: -40px; text-align: center; font: 700 24px Silkscreen, monospace; color: #fff; }
+  .grid { position: absolute; inset: 16px; background-image: linear-gradient(#1b2340 1px, transparent 1px), linear-gradient(90deg, #1b2340 1px, transparent 1px); background-size: 41px 37px; }
+  .dot { position: absolute; width: 26px; height: 26px; border: 3px solid #000; }
+  .lock { left: 870px; top: 400px; width: 100px; height: 100px; font-size: 84px; text-align: center; line-height: 100px; }
+  .readers { left: 740px; top: 645px; width: 360px; text-align: center; font: 30px VT323, monospace; color: #ff8080; }
+  .vision { left: 1330px; width: 380px; height: 150px; display: flex; gap: 16px; align-items: center; padding: 14px;
+    background: rgba(10,12,24,.92); border: 2px solid #000; box-shadow: inset 0 0 0 2px #2b2f45; }
+  .fog { position: relative; width: 112px; height: 112px; border-radius: 50%; overflow: hidden; border: 3px solid #ffe040;
+    background: radial-gradient(circle at 50% 50%, #3d6e2a 0%, #24461b 55%, #05070f 70%); flex: none; }
+  .fog .me, .fog .them { position: absolute; width: 18px; height: 18px; border: 2px solid #000; }
+  .vt { font: 700 20px Silkscreen, monospace; color: #fff; }
+  .vk { font: 27px VT323, monospace; color: #ffe040; }
+  .badge { padding: 14px 22px; background: rgba(10,12,24,.95); border: 3px solid #000; box-shadow: inset 0 0 0 3px #ffe040;
+    font: 700 24px Silkscreen, monospace; color: #fff; white-space: nowrap; }
+  .badge small { display: block; font: 26px VT323, monospace; color: #c9d2ff; font-weight: 400; margin-top: 2px; }
+  .speed { left: 0; right: 0; top: 770px; text-align: center; font: 700 34px Silkscreen, monospace; color: #ffe040; text-shadow: 3px 3px 0 #3a2a00; }
+  .speed span { color: #fff; }
+  .packet { position: absolute; width: 16px; height: 16px; background: #ffe040; border: 2px solid #000; }
+  svg { position: absolute; inset: 0; }
+</style>
+</head>
+<body>
+<div class="stars"></div>
+<svg id="wires" width="1920" height="1080"></svg>
+<div id="root"></div>
+<script>
+const P = [
+  { name: "You", color: "#ffd84a", y: 250 },
+  { name: "Herobot", color: "#e07040", y: 420 },
+  { name: "Creepbot", color: "#7fd060", y: 590 },
+];
+const clamp = (x) => Math.max(0, Math.min(1, x));
+const ease = (t, t0, d = 0.45) => { const x = clamp((t - t0) / d); return 1 - Math.pow(1 - x, 3); };
+const pop = (t, t0) => { const x = clamp((t - t0) / 0.35); return x < 1 ? 0.6 + 0.55 * Math.sin(x * Math.PI * 0.75) : 1; };
+
+window.seek = (t) => {
+  const root = document.getElementById("root");
+  let h = "";
+  // Players (left)
+  P.forEach((p, i) => {
+    const a = ease(t, 0.2 + i * 0.15);
+    h += `<div class="abs player" style="top:${p.y}px;opacity:${a};transform:translateX(${(1 - a) * -40}px)">
+      <div class="head" style="background:${p.color}"></div>
+      <div><div class="pname">${p.name}</div><div class="psub">burner wallet</div></div></div>`;
+  });
+  // Enclave
+  const e = ease(t, 0.5, 0.6);
+  h += `<div class="abs encl-label" style="opacity:${e}">MagicBlock Private ER</div>`;
+  h += `<div class="abs enclave" style="opacity:${e};box-shadow:0 0 ${40 + 20 * Math.sin(t * 2)}px rgba(154,107,255,${0.25 * e})"></div>`;
+  const tdx = ease(t, 5.6, 0.4);
+  h += `<div class="abs tdx" style="left:${1075}px;top:${228}px;opacity:${tdx};transform:scale(${tdx ? pop(t, 5.6) : 0.6})">INTEL TDX</div>`;
+  // World + dots
+  const w = ease(t, 0.9, 0.5);
+  const dots = [
+    { c: "#ffd84a", x: 70 + 30 * Math.sin(t * 0.9), y: 90 },
+    { c: "#e07040", x: 230, y: 70 + 25 * Math.sin(t * 0.7 + 1) },
+    { c: "#7fd060", x: 120 + 20 * Math.cos(t * 0.8), y: 220 },
+    { c: "#8fd8ff", x: 260 + 15 * Math.sin(t * 1.1), y: 210 },
+  ];
+  h += `<div class="abs world" style="opacity:${w}"><div class="ttl">WORLD · every position</div><div class="grid"></div>${dots
+    .map((d) => `<div class="dot" style="left:${d.x}px;top:${d.y}px;background:${d.c}"></div>`)
+    .join("")}</div>`;
+  const lk = ease(t, 2.0, 0.3);
+  h += `<div class="abs lock" style="opacity:${lk};transform:scale(${lk ? pop(t, 2.0) * 1.0 : 0.4})">🔒</div>`;
+  h += `<div class="abs readers" style="opacity:${ease(t, 2.6)}">readers: none. Not even the host.</div>`;
+  // Packets: moves flowing in
+  if (t > 7.9) {
+    for (let k = 0; k < 9; k++) {
+      const ph = ((t - 7.9) * 0.9 + k / 3) % 1;
+      const p = P[k % 3];
+      const x0 = 480, x1 = 740, y0 = p.y + 52, y1 = 330 + (k % 3) * 100;
+      h += `<div class="packet" style="left:${x0 + (x1 - x0) * ph}px;top:${y0 + (y1 - y0) * ph}px;opacity:${Math.sin(ph * Math.PI) * ease(t, 7.9)}"></div>`;
+    }
+  }
+  // Visions (right)
+  const visT = 9.4;
+  P.forEach((p, i) => {
+    const a = ease(t, visT + i * 0.35);
+    const hl = t > 11.6 ? 0.5 + 0.5 * Math.sin((t - 11.6) * 5) : 0;
+    const them = i === 1 ? `<div class="them" style="left:62px;top:40px;background:#e07040"></div>` : "";
+    h += `<div class="abs vision" style="top:${p.y - 10}px;opacity:${a};transform:translateX(${(1 - a) * 40}px)">
+      <div class="fog" style="box-shadow:0 0 ${hl * 24}px rgba(255,224,64,${hl})"><div class="me" style="left:47px;top:47px;background:${p.color}"></div>${them}</div>
+      <div><div class="vt">VISION · ${p.name}</div><div class="vk">🔑 only ${p.name === "You" ? "you" : p.name} can read this</div></div></div>`;
+  });
+  // Wires
+  const svg = document.getElementById("wires");
+  let s = "";
+  P.forEach((p, i) => {
+    const a = ease(t, visT + i * 0.35);
+    if (!a) return;
+    const len = 150 * a;
+    s += `<path d="M1200 ${330 + i * 100} C 1260 ${330 + i * 100}, 1270 ${p.y + 65}, ${1200 + len} ${p.y + 65}" stroke="#ffe040" stroke-width="4" fill="none" stroke-dasharray="10 8" stroke-dashoffset="${-t * 30}" opacity="${a}"/>`;
+  });
+  svg.innerHTML = s;
+  // Badges
+  const v1 = ease(t, 14.4, 0.3), v2 = ease(t, 16.3, 0.3);
+  h += `<div class="abs badge" style="left:560px;top:60px;opacity:${v1};transform:scale(${v1 ? pop(t, 14.4) : 0.5})">🎲 MAGICBLOCK VRF<small>rolls every spawn inside the enclave</small></div>`;
+  h += `<div class="abs badge" style="left:1010px;top:60px;opacity:${v2};transform:scale(${v2 ? pop(t, 16.3) : 0.5})">⏱ CRANK<small>shrinks the border on a schedule</small></div>`;
+  // Speed line
+  const sp = ease(t, 18.0, 0.4);
+  const txs = t > 18 ? Math.floor((t - 18) * 11) + 1 : 0;
+  h += `<div class="abs speed" style="opacity:${sp}">⚡ ~100 ms per move · <span>0 gas</span> · tx #${String(4120 + txs).padStart(5, "0")}</div>`;
+  root.innerHTML = h;
+};
+{ const _s = window.seek; window.seek = (t) => _s(t * 1.1); }
+window.seek(0);
+</script>
+</body>
+</html>

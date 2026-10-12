@@ -1,0 +1,8 @@
+
+  .code { position: absolute; left: 110px; top: 190px; width: 820px; padding: 26px 30px; background: rgba(10,12,22,.92);
+    border: 2px solid #000; box-shadow: inset 0 0 0 2px #2b2f45, 0 20px 60px rgba(0,0,0,.6); font: 30px/1.35 VT323, monospace; color: #c9d2ff; }
+  .code .k { color: #8fd8ff; } .code .r { color: #ff7070; } .code .m { color: #7c86b8; }
+  .code .hl { background: rgba(255,80,80,.18); outline: 2px solid rgba(255,80,80,.6); }
+  .stamp { position: absolute; left: 560px; top: 610px; transform: rotate(-8deg); padding: 10px 22px; border: 5px solid #ff4a4a;
+    color: #ff4a4a; font: 700 40px Silkscreen, monospace; background: rgba(40,0,0,.55); letter-spacing: 2px; }
+  

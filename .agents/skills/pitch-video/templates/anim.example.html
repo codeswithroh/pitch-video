@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800&display=swap" rel="stylesheet" />
+<style>
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: radial-gradient(ellipse at 50% 40%, #121a35, #070912 70%);
+    font-family: Inter, sans-serif; color: #fff; }
+  .abs { position: absolute; }
+  .box { padding: 26px 34px; border-radius: 18px; background: rgba(10,12,24,.92); border: 2px solid #2b2f45; font-weight: 700; font-size: 34px; }
+  .accent { color: #ffe040; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+// A deterministic explainer: window.seek(t) draws frame t. No CSS transitions/animations; compute everything from t.
+// window.CUES (injected) = narration lines inside this shot: [{t, end, text}] in shot-relative seconds.
+// Key every beat to a spoken word so the diagram changes exactly when it's said.
+const cue = (re, fallback) => (window.CUES || []).find((c) => re.test(c.text))?.t ?? fallback;
+const B1 = cue(/sealed|private/i, 0.5);   // e.g. "Every position is sealed..."
+const B2 = cue(/each move|runs inside/i, 4);
+const B3 = cue(/allowed to see/i, 8);
+const clamp = (x) => Math.max(0, Math.min(1, x));
+const ease = (t, t0, d = 0.45) => 1 - Math.pow(1 - clamp((t - t0) / d), 3);
+window.seek = (t) => {
+  const a = ease(t, B1), b = ease(t, B2), c = ease(t, B3);
+  document.getElementById("root").innerHTML = `
+    <div class="abs box" style="left:160px;top:420px;opacity:${a};transform:translateX(${(1 - a) * -40}px)">Players</div>
+    <div class="abs box" style="left:760px;top:400px;opacity:${b};transform:scale(${0.8 + 0.2 * b})">🔒 <span class="accent">Sealed</span> state</div>
+    <div class="abs box" style="left:1380px;top:420px;opacity:${c};transform:translateX(${(1 - c) * 40}px)">Per-player view</div>`;
+};
+window.seek(0);
+</script>
+</body>
+</html>

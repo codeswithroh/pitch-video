@@ -34,7 +34,7 @@ Hackathon submissions, launch videos and investor demos all want the same thing:
 
 Everything runs locally with ffmpeg, whisper.cpp and Playwright. No uploads, no subscriptions, no timeline editor.
 
-> **Don't want to set it up?** [Pitch Video Studio](https://codeswithroh.github.io/pitch-video/) makes it for you: send your take, get the finished video in 24 hours, from $49. The first 10 orders pay only after delivery.
+> **Don't want to set it up?** [Pitch Video Studio](https://pitch-video-studio.vercel.app/) makes it for you: send your take, get the finished video in 24 hours, from $49. The first 10 orders pay only after delivery.
 
 ## Quick start
 

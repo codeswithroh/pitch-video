@@ -13,9 +13,10 @@ body:
     attributes:
       label: Package
       options:
-        - Hackathon · $49 · 24h · up to 3 min
-        - Launch · $249 · 48h · 16:9 + vertical 9:16 cut · 1 revision
-        - Founder · $599/month · 4 videos a month
+        - Hackathon · $49 · 3 hours · up to 3 min
+        - Rush · $99 · 2 hours · first in line
+        - Launch · $249 · 3 hours · 16:9 + vertical 9:16 cut · 1 same-day revision
+        - Founder · $599/month · 4 videos a month, 3 hours each
     validations:
       required: true
   - type: input

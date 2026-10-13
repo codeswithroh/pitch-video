@@ -17,6 +17,7 @@ P = load("project.json")
 OUT = P.get("output", "out/demo.mp4")
 TOTAL = t["total"]
 fails = []
+skipped = []
 
 # 1. container
 st = {s["codec_type"]: s for s in probe(OUT)["streams"]}
@@ -70,7 +71,8 @@ try:
     if sc[L] > 0.15 and not (-70 <= L * 33 <= 140):
         fails.append(f"lip sync off by {L * 33} ms")
 except Exception as e:
-    print("[3] lip sync check skipped:", e)
+    print("[3] lip sync check SKIPPED:", e)
+    skipped.append(f"lip sync not measured ({e})")
 
 # 4. intelligibility
 fc = ("[0:a]aresample=48000,highpass=f=85,equalizer=f=250:t=q:w=1:g=-2,equalizer=f=3200:t=q:w=1.2:g=4,"
@@ -97,5 +99,12 @@ os.makedirs("out", exist_ok=True)
 run(["-i", OUT, "-vf", f"fps=16/{TOTAL},scale=480:-2,tile=4x4", "-frames:v", "1", "out/contact.png"])
 print("    contact sheet: out/contact.png")
 
-print("\nRESULT:", "PASS" if not fails else "FAIL\n  - " + "\n  - ".join(fails))
-sys.exit(1 if fails else 0)
+if fails:
+    print("\nRESULT: FAIL\n  - " + "\n  - ".join(fails))
+    sys.exit(1)
+if skipped:
+    # A skipped check is not a passed check: never report PASS for something we did not measure.
+    print("\nRESULT: UNVERIFIED\n  - " + "\n  - ".join(skipped))
+    sys.exit(2)
+print("\nRESULT: PASS")
+sys.exit(0)

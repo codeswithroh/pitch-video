@@ -31,7 +31,7 @@ All scripts live in `scripts/`. Work in a fresh dir (scratchpad): `WORK=<dir>; c
 9. **Compose:** `$PY $S/compose.py`.
 9b. **Vertical (optional):** `$PY $S/compose_vertical.py` → `out/demo_vertical.mp4` (1080x1920 for Reels/Shorts/TikTok/X: product on top, face below, captions on the seam; reuses the verified audio).
 9c. **Posts:** `$PY $S/draft_posts.py` → `out/posts.md`: X thread, LinkedIn, Product Hunt, Reddit and Show HN drafts built from what was actually said. Polish them with the user; never post unreviewed.
-10. **Verify:** `$PY $S/verify.py` — must print `RESULT: PASS`. Also Read `out/contact.png`. Fix and re-run from the
+10. **Verify:** `$PY $S/verify.py` — must print `RESULT: PASS`. `UNVERIFIED` means a check could not run (e.g. no face found): fix the cause or tell the user plainly; never call it passed. Also Read `out/contact.png`. Fix and re-run from the
     earliest affected step. Only then send the file (state it was checked by measurement, not by ear).
 
 ## project.json

@@ -27,6 +27,7 @@ mkdir work && cd work
 
 `verify.py` fails the build when:
 
+0. The pipeline self-test fails. It renders a synthetic clip with a flash and a click on the same frame at 8 known points, runs it through the real cut, speed-up, voice chain, mix and AAC mux, then checks on the finished file that each click still lands within 40 ms of its flash, with no drift trend (≤ 20 ms across the clip). Because it has no face tracker in the loop, a failure here means the pipeline itself is out of sync. Run it alone: `$PY $S/selftest.py`. (Idea from u/vincent_sch.)
 1. The video and audio lengths differ, or the **decoded** audio sample count doesn't match the stated duration.
 2. The voice in the final mix drifts more than 30 ms from the speaker track in more than 10% of 8-second windows.
 3. Mouth opening (MediaPipe face landmarks) and voice energy are offset outside −70…+140 ms. Natural speech sits around 0 to +100 ms because the mouth opens slightly before the sound.

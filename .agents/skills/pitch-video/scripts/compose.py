@@ -9,7 +9,7 @@ AAC track whose timestamps said 114 s but held 105 s of samples (lips drifted, v
 """
 import os, sys
 sys.path.insert(0, os.path.dirname(__file__))
-from common import load, run, probe, FPS
+from common import load, run, probe, audio_graph, FPS
 
 t = load("timeline.json")
 P = load("project.json")
@@ -62,25 +62,15 @@ fc = [
     "[v1][4:v]overlay=0:0[v2]",
     "[v2][5:v]overlay=0:0[v3]",
     "[v3][6:v]overlay=0:0,format=yuv420p[vout]",
-    # Voice: de-rumble, de-mud, presence, compress, loudness-normalize, BACK TO 48 kHz.
-    "[1:a]aresample=48000,highpass=f=85,equalizer=f=250:t=q:w=1:g=-2,equalizer=f=3200:t=q:w=1.2:g=4,"
-    "acompressor=threshold=-28dB:ratio=4:attack=4:release=140:makeup=6,loudnorm=I=-14:TP=-1.5:LRA=7,aresample=48000,"
-    "pan=stereo|c0=c0|c1=c0,asplit=2[voice][key]",
-    f"[7:a]aresample=48000,volume={P.get('music_gain', 0.55)}[mus]",
-    "[mus][key]sidechaincompress=threshold=0.02:ratio=12:attack=15:release=450:makeup=1[musd]",
-    f"[8:a]aresample=48000,volume={P.get('sfx_gain', 0.85)}[fx]",
-    "[voice][musd][fx]amix=inputs=3:duration=first:normalize=0,alimiter=limit=0.95:level=false,aresample=48000[aout]",
 ]
 # Picture and sound are rendered in SEPARATE passes and then muxed. In one combined graph ffmpeg silently
 # dropped ~9 s of audio samples (looped image inputs + loudnorm/sidechain buffering), wrecking lip sync.
 INS = ["-i", "bg.mp4", "-i", "speaker_cut.mov", "-loop", "1", "-i", "ov/pipmask.png", "-loop", "1", "-i", "ov/pipframe.png",
        "-i", "ov/trk_cards.mov", "-i", "ov/trk_chips.mov", "-i", "ov/trk_caps.mov", "-i", "music.wav", "-i", "sfx.wav"]
-vid = [x for x in fc if "[vout]" in x or not x.startswith(("[1:a]", "[7:a]", "[8:a]", "[mus]", "[voice]"))]
-aud = [x for x in fc if x not in vid]
-run([*INS, "-filter_complex", ";".join(vid), "-map", "[vout]", "-an", "-frames:v", str(round(TOTAL * FPS)),
+run([*INS, "-filter_complex", ";".join(fc), "-map", "[vout]", "-an", "-frames:v", str(round(TOTAL * FPS)),
      "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-r", str(FPS), "out/_video.mp4"])
 run(["-i", "speaker_cut.mov", "-i", "music.wav", "-i", "sfx.wav", "-filter_complex",
-     ";".join(aud).replace("[1:a]", "[0:a]").replace("[7:a]", "[1:a]").replace("[8:a]", "[2:a]"),
+     audio_graph(P.get("music_gain", 0.55), P.get("sfx_gain", 0.85)),
      "-map", "[aout]", "-t", f"{TOTAL:.4f}", "-c:a", "pcm_s16le", "-ar", "48000", "out/_audio.wav"])
 run(["-i", "out/_video.mp4", "-i", "out/_audio.wav", "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
      "-ar", "48000", "-movflags", "+faststart", OUT])

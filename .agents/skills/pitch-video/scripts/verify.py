@@ -1,5 +1,7 @@
 """Step 10: objective QA. Run it every render; do not ship on a FAIL.
 
+0. pipeline self-test (selftest.py): a synthetic flash+click clip through the same cut, speed-up, mix and mux.
+   Proves the pipeline keeps sync before the real footage is judged (separates pipeline drift from tracker noise).
 1. container: audio/video durations match AND the decoded sample count matches the stated duration
    (catches the "timestamps say 114 s, samples say 105 s" class of bug that wrecks lip sync).
 2. voice timing: final mix vs speaker_cut.mov envelope cross-correlation in 8 s windows (must be ~0 ms).
@@ -10,7 +12,8 @@
 import os, re, subprocess, sys
 import numpy as np
 sys.path.insert(0, os.path.dirname(__file__))
-from common import TB, load, run, probe, pcm
+from common import TB, VOICE, load, run, probe, pcm
+from selftest import run_selftest
 
 t = load("timeline.json")
 P = load("project.json")
@@ -18,6 +21,10 @@ OUT = P.get("output", "out/demo.mp4")
 TOTAL = t["total"]
 fails = []
 skipped = []
+
+# 0. pipeline self-test
+if not run_selftest():
+    fails.append("pipeline self-test: the pipeline itself moves sound against picture")
 
 # 1. container
 st = {s["codec_type"]: s for s in probe(OUT)["streams"]}
@@ -75,8 +82,7 @@ except Exception as e:
     skipped.append(f"lip sync not measured ({e})")
 
 # 4. intelligibility
-fc = ("[0:a]aresample=48000,highpass=f=85,equalizer=f=250:t=q:w=1:g=-2,equalizer=f=3200:t=q:w=1.2:g=4,"
-      "acompressor=threshold=-28dB:ratio=4:attack=4:release=140:makeup=6,loudnorm=I=-14:TP=-1.5:LRA=7,aresample=48000,asplit=2[voice][key];"
+fc = (f"[0:a]{VOICE},asplit=2[voice][key];"
       f"[1:a]aresample=48000,volume={P.get('music_gain', 0.55)}[mus];[mus][key]sidechaincompress=threshold=0.02:ratio=12:attack=15:release=450:makeup=1[musd];"
       f"[2:a]aresample=48000,volume={P.get('sfx_gain', 0.85)}[fx];[musd][fx]amix=inputs=2:duration=first:normalize=0[bg]")
 run(["-i", "speaker_cut.mov", "-i", "music.wav", "-i", "sfx.wav", "-filter_complex", fc,

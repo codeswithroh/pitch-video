@@ -10,6 +10,17 @@ sys.path.insert(0, os.path.dirname(__file__))
 from common import load, save, snap, FPS
 
 P = load("project.json")
+# Rules memory: lasting preferences from past notes override project defaults (project.json still wins if it sets a key).
+try:
+    import rules as _rules
+    for _k, _v in _rules.apply().items():
+        if _k not in P:
+            P[_k] = _v
+            print(f"rule applied: {_k} = {_v}")
+        elif isinstance(_v, dict) and isinstance(P[_k], dict):
+            P[_k] = {**_v, **P[_k]}
+except Exception as _e:
+    print("rules skipped:", _e)
 caps = load("captions.json")
 SPEED = float(P.get("speed", 1.1))
 PZ = {"scene": 1.0, "long": 0.6, "short_max": 0.8, "head": 0.25, "tail": 2.5, **P.get("pause", {})}

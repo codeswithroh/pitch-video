@@ -13,6 +13,7 @@ All scripts live in `scripts/`. Work in a fresh dir (scratchpad): `WORK=<dir>; c
 
 ## Pipeline (do every step, in order)
 
+0a. **Rules first:** `$PY $S/rules.py show`, and follow every active rule. They are the user's lasting preferences from past videos; edit.py applies the numeric ones (speed, pauses, music level, accent) automatically.
 0. **Setup (once):** `bash $S/setup.sh` — checks ffmpeg/whisper-cli/node, builds the toolbox in `~/.cache/pitch-video`.
 1. **Prep:** `$PY $S/prep.py <video>` → `source.mov` (CFR 30, 48 kHz, A/V offset fixed), `captions_raw.json`, `sil.json`, `face.json`.
 2. **Captions:** `$PY $S/fix_captions.py <script.md>` (script optional). Read the diff it prints; hand-fix `captions.json`
@@ -29,6 +30,7 @@ All scripts live in `scripts/`. Work in a fresh dir (scratchpad): `WORK=<dir>; c
 8. **Sound:** `$PY $S/sfx.py` → `sfx.wav`, `music.wav`.
 9. **Compose:** `$PY $S/compose.py`.
 9b. **Vertical (optional):** `$PY $S/compose_vertical.py` → `out/demo_vertical.mp4` (1080x1920 for Reels/Shorts/TikTok/X: product on top, face below, captions on the seam; reuses the verified audio).
+9c. **Posts:** `$PY $S/draft_posts.py` → `out/posts.md`: X thread, LinkedIn, Product Hunt, Reddit and Show HN drafts built from what was actually said. Polish them with the user; never post unreviewed.
 10. **Verify:** `$PY $S/verify.py` — must print `RESULT: PASS`. Also Read `out/contact.png`. Fix and re-run from the
     earliest affected step. Only then send the file (state it was checked by measurement, not by ear).
 
@@ -88,3 +90,10 @@ Open on the face (trust), cut to product within ~4 s, keep the face bubble on du
 - Captions shift left while the face bubble is on; the bubble is hidden on full-frame speaker shots and the end card.
 - Check the end card doesn't sit on top of busy UI (name tags etc.) and that zoomed shots aren't covered by the bubble (`pip:false`).
 - Explainer animations: deterministic `seek(t)`, beats keyed to spoken words via `CUES`, rendered at the exact shot length.
+
+## Feedback → rules (do this every time the user reacts to a video)
+- Log every note: `$PY $S/rules.py note "too fast at 0:42"`.
+- If the note is about taste rather than this one video ("always", "never", "I prefer", or the same note twice), turn it into a rule: `$PY $S/rules.py add "<rule in imperative voice>" --from "<the note>"`. Use `--project` for rules that only fit this product.
+- A new rule on the same topic retires the old one automatically, so rules never contradict. Tell the user when that happens.
+- Re-run from the earliest affected step, show the new version, and keep the previous output (rename it `out/demo_v<N>.mp4`).
+

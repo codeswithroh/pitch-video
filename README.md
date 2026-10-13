@@ -20,6 +20,8 @@
 
 <code>npx skills add codeswithroh/pitch-video</code>
 
+<a href="https://www.producthunt.com/posts/pitch-video?utm_source=badge-featured&utm_medium=badge" target="_blank" rel="noopener"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1277696&theme=dark" alt="Pitch Video on Product Hunt" width="250" height="54" /></a>
+
 <br /><br />
 
 <img src="docs/assets/hero.jpg" alt="A raw talking-head recording on the left turns into a finished product demo on the right: gameplay footage, a face bubble, burned-in captions" width="1100" />

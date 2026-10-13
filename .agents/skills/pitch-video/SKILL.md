@@ -28,6 +28,7 @@ All scripts live in `scripts/`. Work in a fresh dir (scratchpad): `WORK=<dir>; c
 7. **Overlays:** `node $S/render_overlays.mjs`.
 8. **Sound:** `$PY $S/sfx.py` → `sfx.wav`, `music.wav`.
 9. **Compose:** `$PY $S/compose.py`.
+9b. **Vertical (optional):** `$PY $S/compose_vertical.py` → `out/demo_vertical.mp4` (1080x1920 for Reels/Shorts/TikTok/X: product on top, face below, captions on the seam; reuses the verified audio).
 10. **Verify:** `$PY $S/verify.py` — must print `RESULT: PASS`. Also Read `out/contact.png`. Fix and re-run from the
     earliest affected step. Only then send the file (state it was checked by measurement, not by ear).
 

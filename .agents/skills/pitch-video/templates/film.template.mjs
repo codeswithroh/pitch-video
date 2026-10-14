@@ -50,7 +50,8 @@ async function recorder(ctx, page, name) {
     stamps.push([i, f.metadata.timestamp]);
     cdp.send("Page.screencastFrameAck", { sessionId: f.sessionId }).catch(() => {});
   });
-  await cdp.send("Page.startScreencast", { format: "jpeg", quality: 88, maxWidth: VW, maxHeight: VH, everyNthFrame: 2 });
+  const dpr = await page.evaluate(() => devicePixelRatio);
+  await cdp.send("Page.startScreencast", { format: "jpeg", quality: 88, maxWidth: VW * dpr, maxHeight: VH * dpr, everyNthFrame: 2 });
   const startedAt = (Date.now() - T0) / 1000;
   ev(name, "rec-start");
   return {
@@ -63,12 +64,38 @@ async function recorder(ctx, page, name) {
   };
 }
 
-async function newPage(seed = {}) {
-  const ctx = await browser.newContext({ viewport: { width: VW, height: VH } });
+async function newPage(seed = {}, { hidpi = false } = {}) {
+  // hidpi: 2x pixels, for cinematic shots (cine.py magnifies UI up to 6x and needs the extra resolution)
+  const ctx = await browser.newContext({ viewport: { width: VW, height: VH }, deviceScaleFactor: hidpi ? 2 : 1 });
   await ctx.addInitScript((s) => { for (const [k, v] of Object.entries(s)) localStorage.setItem(k, v); }, seed);
   const page = await ctx.newPage();
   page.on("pageerror", (e) => console.log("pageerror", e.message));
   return { ctx, page };
+}
+
+/** Sharp still for a cinematic shot: stills/<name>.png plus stills/<name>.json with named subject positions
+ *  (fractions of the page), e.g. still(page, "hero", { subject: "button:has-text('Deploy')" }). */
+async function still(page, name, targets = {}) {
+  fs.mkdirSync("stills", { recursive: true });
+  const vw = page.viewportSize(), out = {};
+  for (const [k, sel] of Object.entries(targets)) {
+    const bb = await page.locator(sel).first().boundingBox().catch(() => null);
+    const c = bb && [(bb.x + bb.width / 2) / vw.width, (bb.y + bb.height / 2) / vw.height];
+    if (!c) console.log(`still ${name}: target ${k} (${sel}) not found`);
+    else if (c.some((v) => v < 0 || v > 1)) console.log(`still ${name}: target ${k} is off-screen ${c}; scroll it into view first`);
+    else out[k] = c.map((v) => +v.toFixed(4));
+  }
+  await page.screenshot({ path: `stills/${name}.png` });
+  fs.writeFileSync(`stills/${name}.json`, JSON.stringify(out));
+  ev("still", name, out);
+}
+
+/** Named subject position inside a recording, for cine shots that use footage: shots/<rec>/targets.json. */
+async function mark(page, rec, key, sel) {
+  const vw = page.viewportSize(), bb = await page.locator(sel).first().boundingBox();
+  const f = `${OUT}/${rec}/targets.json`, cur = fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, "utf8")) : {};
+  cur[key] = [+((bb.x + bb.width / 2) / vw.width).toFixed(4), +((bb.y + bb.height / 2) / vw.height).toFixed(4)];
+  fs.writeFileSync(f, JSON.stringify(cur));
 }
 
 // ───────────────────────── shots: edit below ─────────────────────────

@@ -106,6 +106,7 @@ Your agent plans the scenes from what you said, films your app, renders, verifie
 | **Captions that are right** | Per-chunk Whisper timing, then word-aligned to your script, so "Virev" becomes **VRF** and `**bold**` in the script becomes highlighted words. |
 | **Explainer animations** | HTML diagrams whose beats are keyed to your narration (`CUES.find(c => /sealed/.test(c.text))`). |
 | **Cinematic sound** | 23 synthesized SFX (riser, boom, whoosh, lock, chime, glitch…), auto-placed on cuts and cards and ducked under every spoken word. Optional music bed. |
+| **Cinematic cold opens** | Hero shots of your real UI before the first word: a tilted slab in a black void, a thin focus band, a slow drift and light on the subject, then a hard cut to your face. Look after [cinematic-shot](https://github.com/1weiho/cinematic-shot). |
 | **Verification gate** | Lip-sync measurement, A/V drift check, decoded-sample audit, per-line voice-over-background dB, EBU R128 loudness and a contact sheet. Ships only on `PASS`. |
 
 ## How it works
@@ -219,6 +220,10 @@ No. Transcription, rendering and analysis all run on your machine. Your agent se
 ## Contributing
 
 Issues and PRs are welcome, especially new SFX, caption themes, vertical output and showcase videos. See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Credits
+
+The cinematic shot look (oblique hero shots of UI in a black void) follows Wei Ho's [cinematic-shot](https://github.com/1weiho/cinematic-shot) skill. `cine.py` is an independent implementation of that look.
 
 ## License
 

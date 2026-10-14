@@ -97,6 +97,19 @@ else:
     ins = ["-i", "bg.mp4", "-i", "speaker_cut.mov", "-i", caps]
 
 
+# Cold open (split): the cinematic shots fill the whole 9:16 frame, above everything, before the first word.
+INTRO = t.get("intro", 0)
+if SPLIT and INTRO:
+    parts = [p for p in t["plan"] if p.get("intro")]
+    open("ov_v/intro.txt", "w").write("".join(f"file '{os.path.abspath(f'cine/{p['cine']}.mp4')}'\n" for p in parts))
+    run(["-f", "concat", "-safe", "0", "-i", "ov_v/intro.txt", "-vf", f"scale=1080:1920,fps={FPS},tpad=stop_mode=clone:stop_duration=600",
+         "-t", f"{TOTAL:.4f}", "-c:v", "libx264", "-preset", "fast", "-crf", "15", "ov_v/intro.mp4"])
+    ins += ["-i", "ov_v/intro.mp4"]
+    k = ins.count("-i") - 1
+    fc[-1] = fc[-1].replace(",format=yuv420p[v]", "[v0]")
+    fc.append(f"[v0][{k}:v]overlay=0:0:enable='lt(t,{INTRO - 0.001})',format=yuv420p[v]")
+
+
 def has_drawbox():
     return "drawbox" in subprocess.run(["ffmpeg", "-hide_banner", "-filters"], capture_output=True, text=True).stdout
 

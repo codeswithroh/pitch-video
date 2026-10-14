@@ -133,11 +133,19 @@ def rec_to_edit(rec, ts):
     sys.exit(f"sfx: rec {rec!r} time {ts} is not inside any shot's fit range")
 
 A = P.get("sfx_auto", {})
+INTRO = t.get("intro", 0)
+if INTRO and A.get("intro", True):
+    place(max(0, INTRO - 1.8), "swell", 0.5)
+    place(INTRO - 0.05, "subboom", 0.7)
+for p in plan:
+    for nm in (p.get("sfx") or []) if p.get("cine") else []:   # foley per cinematic shot, e.g. ["typing"]
+        place(p["start"] + 0.3, nm, 0.5)
 if A.get("whoosh", True):
     for s in scenes[1:]: place(s["start"] - 0.35, "whoosh", 0.45, -0.3)
 if A.get("hook", True):
-    first = next((p for p in plan if not p.get("speaker")), None)
-    if first and plan[0].get("speaker"):
+    talk = [p for p in plan if not p.get("intro")]
+    first = next((p for p in talk if not p.get("speaker")), None)
+    if first and talk and talk[0].get("speaker"):
         place(first["start"] - 1.5, "riser", 0.55); place(first["start"], "boom", 0.75)
 for p in plan:
     if p.get("title") and A.get("title", True):
@@ -178,6 +186,7 @@ print(f"sfx.wav {TOTAL:.1f}s peak {pk:.2f}; sounds: {', '.join(sorted(LIB))}")
 
 # ── music bed ──
 M = P.get("music", "synth")
+MDELAY = f"adelay={int(INTRO * 1000)}:all=1,atrim=0:{TOTAL + 1},afade=t=in:st={INTRO}:d=2," if INTRO else ""  # the cold open plays without music
 if M == "none":
     run(["-f", "lavfi", "-i", f"anullsrc=r={SR}:cl=stereo", "-t", str(TOTAL + 1), "-c:a", "pcm_s16le", "music.wav"])
 elif M == "synth":
@@ -187,9 +196,9 @@ elif M == "synth":
     e = "min(1,mod(t,8)*1.5)*min(1,(8-mod(t,8))*1.5)"
     expr = "(" + "+".join(f"{a}*sin(2*PI*{v(k)}*t)" for k, a in enumerate([0.32, 0.22, 0.18, 0.14])) + f")*{e}*(0.85+0.15*sin(2*PI*0.18*t))"
     run(["-f", "lavfi", "-i", f"aevalsrc='{expr}':s={SR}:d={TOTAL + 1}", "-af",
-         f"lowpass=f=1400,aecho=0.8:0.7:220|420:0.35|0.22,volume=0.22,afade=t=in:d=3,afade=t=out:st={TOTAL - 4}:d=4",
+         f"{MDELAY}lowpass=f=1400,aecho=0.8:0.7:220|420:0.35|0.22,volume=0.22,afade=t=in:d=3,afade=t=out:st={TOTAL - 4}:d=4",
          "-ac", "2", "-c:a", "pcm_s16le", "music.wav"])
 else:  # a user-supplied track: loop/trim, normalize low, fade
     run(["-stream_loop", "-1", "-i", M, "-t", str(TOTAL + 1), "-af",
-         f"aresample={SR},loudnorm=I=-30:TP=-6,afade=t=in:d=2,afade=t=out:st={TOTAL - 4}:d=4", "-ac", "2", "-c:a", "pcm_s16le", "music.wav"])
+         f"aresample={SR},loudnorm=I=-30:TP=-6,{MDELAY}afade=t=in:d=2,afade=t=out:st={TOTAL - 4}:d=4", "-ac", "2", "-c:a", "pcm_s16le", "music.wav"])
 print("music.wav", M)

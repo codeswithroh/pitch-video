@@ -20,7 +20,10 @@ for i, (a, b) in enumerate(t["keep"]):
               f"afade=t=in:d=0.012,afade=t=out:st={max(0, d - 0.015):.4f}:d=0.015[a{i}]")
 n = len(t["keep"])
 fc.append("".join(f"[v{i}][a{i}]" for i in range(n)) + f"concat=n={n}:v=1:a=1[vc][ac]")
-fc.append(f"[vc]setpts=PTS/{S},fps={FPS}[v];[ac]atempo={S},aresample=48000[a]")
+NI = round(t.get("intro", 0) * FPS)  # cold-open frames: black picture, silence, so everything after stays in sync
+pad_v = f",tpad=start={NI}:color=black" if NI else ""
+pad_a = f",adelay=delays={NI * SPF}S:all=1" if NI else ""
+fc.append(f"[vc]setpts=PTS/{S},fps={FPS}{pad_v}[v];[ac]atempo={S},aresample=48000{pad_a}[a]")
 run(["-i", "source.mov", "-filter_complex", ";".join(fc), "-map", "[v]", "-map", "[a]",
      "-c:v", "libx264", "-preset", "fast", "-crf", "15", "-pix_fmt", "yuv420p", "-c:a", "pcm_s16le", "-ar", "48000", "speaker_cut.mov"])
 st = {s["codec_type"]: float(s["duration"]) for s in probe("speaker_cut.mov")["streams"]}

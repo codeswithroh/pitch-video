@@ -6,6 +6,8 @@ Shot kinds (from timeline.json plan):
   anim         anims/<name>.mp4 rendered by render_anim.mjs
   image        a still with a slow push-in
   title        dark background (the big text comes from the overlay track)
+  cine         cinematic hero shot rendered by cine.py (in split layout the cold open is overlaid full-frame
+               by compose_vertical.py, so its canvas part here is just black)
 Optional: "zoom": "tl"|"tr"|"bl"|"br"|"c" pushes in toward that corner (to make small UI readable).
 """
 import bisect, json, os, sys
@@ -53,6 +55,8 @@ for i, p in enumerate(t["plan"]):
     z = zoom(p["zoom"]) if p.get("zoom") else ""
     if p.get("speaker"):
         run(["-ss", f"{p['start']:.4f}", "-i", "speaker_cut.mov", "-an", "-vf", SPEAKER_VF + z, "-frames:v", str(nfr), *ENC, out])
+    elif p.get("cine") and not (p.get("intro") and layout() == "split"):
+        run(["-i", f"cine/{p['cine']}.mp4", "-vf", f"scale={W}:{H},tpad=stop_mode=clone:stop_duration=5", "-frames:v", str(nfr), *ENC, out])
     elif p.get("anim"):
         run(["-i", f"anims/{p['anim']}.mp4", "-vf", f"scale={W}:{H},tpad=stop_mode=clone:stop_duration=5" + z, "-frames:v", str(nfr), *ENC, out])
     elif p.get("image"):

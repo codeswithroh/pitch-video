@@ -58,7 +58,15 @@ Link is in the comments. Try it on your messiest repo.
 ```
 
 Cues go on their own line and apply from the next spoken line:
-`[face]` · `[rec <name>: what to film]` · `[anim <name>: what it explains]` · `[image <path>]` · `[title TEXT | subtitle]` · `[card <name>]` · `[zoom tl|tr|bl|br|c]` · `[end]`
+`[face]` · `[rec <name>: what to film]` · `[anim <name>: what it explains]` · `[cine <name> <scale>: subject]` · `[image <path>]` · `[title TEXT | subtitle]` · `[card <name>]` · `[zoom tl|tr|bl|br|c]` · `[end]`
+
+For walkthroughs and overviews, open with a silent cinematic cold open (see `references/cinematic.md`):
+```
+## Cold open
+[cine composer macro: the prompt box with a half-typed request]
+[cine run xmacro: the Run button]
+[cine result wide: the whole window with the finished result]
+```
 
 Shape that works for split videos: open on `[face]` for the hook (trust), cut to the product by the second line, keep the top half moving, end on `[end]` with one action.
 

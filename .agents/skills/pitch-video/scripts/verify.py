@@ -70,7 +70,9 @@ try:
     k = len(x) // 1600
     rms = np.log(np.sqrt((x[:k * 1600].reshape(k, 1600) ** 2).mean(1)) + 1e-4)
     m = min(len(op), len(rms))
-    o = np.nan_to_num(op[:m], nan=np.nanmean(op)); r_ = rms[:m]
+    NI = round(t.get("intro", 0) * 30)  # the cold open is black on the speaker track: measure from the first word on
+    op, rms, m = op[NI:m], rms[NI:m], m - NI
+    o = np.nan_to_num(op, nan=np.nanmean(op)); r_ = rms
     o, r_ = (o - o.mean()) / (o.std() + 1e-9), (r_ - r_.mean()) / (r_.std() + 1e-9)
     sc = {L: np.dot(o[max(0, L):m + min(0, L)], r_[max(0, -L):m - max(0, L)]) / m for L in range(-15, 16)}
     L = max(sc, key=sc.get)

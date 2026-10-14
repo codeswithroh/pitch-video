@@ -33,6 +33,8 @@ Cues (one per line, they apply from the NEXT spoken line):
     [title TEXT | subtitle]         big statement card
     [card <name>]                   custom card overlay (cards/<name>.html) on the current shot
     [zoom tl|tr|bl|br|c]            push in on the current shot
+    [cine <name> <scale>: subject]  cinematic hero shot of real UI (scale: xmacro|macro|medium|wide), see references/cinematic.md
+A "## Cold open" section with only [cine ...] cues and no spoken lines becomes the silent cinematic intro.
     [end]                           this scene gets the end card
 Everything else that isn't a heading or blank is spoken. **bold** = emphasis (read it with weight; shown in the accent colour).
 
@@ -94,8 +96,23 @@ def anchor(text, n=4):
 
 # ── build project.json scenes ──
 out_scenes, shotlist, problems = [], [], []
+LENS = {"xmacro": 2.5, "macro": 3.5, "medium": 4.5, "wide": 4.5}
+
+
+def cine_shot(arg, desc):
+    bits = arg.split()
+    name = bits[0] if bits else f"cine{len(shotlist)}"
+    scale = bits[1] if len(bits) > 1 and bits[1] in LENS else "macro"
+    shotlist.append(("cine", name, f"{scale}: {desc}", ""))
+    return {"cine": name, "scale": scale, "src": f"stills/{name}.png", "focus": "subject", "len": LENS[scale]}
+
+
+intro = []
 for sc in scenes:
     said = [x[1] for x in sc["items"] if x[0] == "say"]
+    if not said and not out_scenes and all(it[1] == "cine" for it in sc["items"] if it[0] == "cue") and sc["items"]:
+        intro += [cine_shot(it[2], it[3]) for it in sc["items"]]
+        continue
     if not said:
         problems.append(f"scene '{sc['title']}' has no spoken line; merged into the previous scene")
         continue
@@ -120,6 +137,10 @@ for sc in scenes:
                 shotlist.append(("anim", shot["anim"], desc, text))
             elif kind == "image":
                 shot["image"] = arg
+            elif kind == "cine":
+                c = cine_shot(arg, desc)
+                c.pop("len")
+                shot.update(c)
             elif kind == "title":
                 shot["title"] = arg
                 if desc:
@@ -131,7 +152,7 @@ for sc in scenes:
             else:
                 problems.append(f"unknown cue [{kind}] in '{sc['title']}'")
         pending = []
-        if any(k in shot for k in ("speaker", "rec", "anim", "image", "title")):
+        if any(k in shot for k in ("speaker", "rec", "anim", "image", "title", "cine")):
             if shots:
                 shot["from"] = anchor(text)
             shots.append(shot)
@@ -154,7 +175,7 @@ layout = meta.get("layout", "split")
 spoken = [x[1] for sc in scenes for x in sc["items"] if x[0] == "say"]
 nwords = sum(len(words(s)) for s in spoken)
 speed = float(meta.get("speed", 1.1))
-est = nwords / WPS / speed
+est = nwords / WPS / speed + sum(c["len"] for c in intro)
 
 project = {
     "title": meta.get("title", out_scenes[0]["title"] if out_scenes else "Video"),
@@ -170,6 +191,8 @@ project = {
 }
 if meta.get("url"):
     project["url"] = meta["url"]
+if intro:
+    project["intro"] = {"shots": intro}
 
 if os.path.exists("project.json") and not force:
     json.dump(project, open("project.from_script.json", "w"), indent=1)
@@ -188,6 +211,9 @@ sl = [f"# Shot list: {project['title']}", "",
       "anim shots: write anims/<name>.html (window.seek(t), keyed to window.CUES), then node render_anim.mjs <name>.", ""]
 for kind, name, desc, text in shotlist:
     secs = len(words(text)) / WPS / speed
+    if kind == "cine":
+        sl.append(f"- **cine `{name}`** {desc}\n  capture: stills/{name}.png (+ .json with a \"subject\" target) via still() in film.mjs, then python cine.py")
+        continue
     sl.append(f"- **{kind} `{name}`** ({secs:.0f}s+): {desc or '(describe it)'}\n  covers: \"{plain(text)}\"")
 open("shotlist.md", "w").write("\n".join(sl) + "\n")
 

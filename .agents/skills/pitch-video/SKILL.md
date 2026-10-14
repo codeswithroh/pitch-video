@@ -1,6 +1,6 @@
 ---
 name: pitch-video
-description: Make any talking video, from idea to verified file. Suggests video ideas from who the person is (profile, audience, goal), writes the script with the edit cued into it and a teleprompter, then turns their single take into a finished video - product walkthroughs of new AI tools, reviews, tutorials, build-in-public updates, hot takes, launch and pitch/demo videos. Two layouts - split (9:16, product footage and motion graphics on the top half, the speaker on the bottom) and pitch (16:9 with a face bubble). Pause-trimmed, retakes removed, lip-synced, captions, explainer animations, SFX and ducked music, checked by measurement. Use when someone wants a video idea, a script, or uploads/points to a recording of themselves talking.
+description: Make any talking video, from idea to verified file, with optional cinematic cold opens of the real UI. Suggests video ideas from who the person is (profile, audience, goal), writes the script with the edit cued into it and a teleprompter, then turns their single take into a finished video - product walkthroughs of new AI tools, reviews, tutorials, build-in-public updates, hot takes, launch and pitch/demo videos. Two layouts - split (9:16, product footage and motion graphics on the top half, the speaker on the bottom) and pitch (16:9 with a face bubble). Pause-trimmed, retakes removed, lip-synced, captions, explainer animations, SFX and ducked music, checked by measurement. Use when someone wants a video idea, a script, or uploads/points to a recording of themselves talking.
 ---
 
 # pitch-video
@@ -19,6 +19,9 @@ Read `references/ideas.md`. Profile the person from what you can already see (re
 Read `references/scripts.md`. Write `script.md` with front matter (layout, accent, end card) and cues (`[face]`, `[rec name: what to film]`, `[anim name: what it explains]`, `[title …]`, `[end]` …) on their own lines before the line they cover. Show them the plain script, revise until it sounds like them, then:
 `$PY $S/script_plan.py script.md` → `project.json` (scenes and shots already anchored to the words), `narration.md`, `shotlist.md`, `teleprompter.html`. Fix any WARN. Send them the teleprompter + recording tips from `references/scripts.md`.
 While they record, you can already film every `rec` and build every `anim` on the shot list (step 5); times get filled in after.
+
+## Cinematic shots
+Walkthroughs and product overviews open harder with a **cold open**: 2–4 cinematic hero shots of the real UI (tilted slab in a black void, thin focus band, slow drift, light on the subject) before the first word, then a hard cut to the face. Read `references/cinematic.md`. In a script: a `## Cold open` section with only `[cine name scale: subject]` cues; anywhere else, `[cine …]` works like `[rec …]`. Capture sharp sources with `still()` / `mark()` on a `hidpi` page in film.mjs, then `$PY $S/cine.py`. Grab a frame from each shot and check it before going on.
 
 ## Layouts
 - **`"layout": "split"`**: 9:16. The canvas (footage, animations, cards, titles, end card) is **1080x960** and fills the top half; the speaker fills the bottom half; captions sit on the seam; `speaker` shots go full-frame face. Film and design animations at 1080x960 (film.template.mjs and render_anim.mjs do it automatically; write anim CSS in `vw/vh` or for 1080x960). Footage of another size sits on a blurred copy of itself. Best for Reels, Shorts, TikTok, X, and walkthroughs of new tools.
@@ -42,6 +45,7 @@ All scripts live in `scripts/`. Work in a fresh dir (scratchpad): `WORK=<dir>; c
    Read `shots/events.json` for exact times to put in `project.json` (`"t"`/`"to"`), then re-run edit.py.
    Explainers: write `anims/<name>.html` with `window.seek(t)` keyed to `window.CUES` (see `templates/anim.example.html`),
    then `node $S/render_anim.mjs <name>`. Custom cards: `cards/<name>.html` (+ optional `cards/cards.css`).
+5c. **Cinematic shots** (if any `cine` shots or an `intro`): `$PY $S/cine.py` → `cine/<name>.mp4` at the exact shot length. Check a frame of each.
 6. **Picture:** `$PY $S/build_bg.py` → `bg.mp4` (every part must report the expected frame count).
 7. **Overlays:** `node $S/render_overlays.mjs`.
 8. **Sound:** `$PY $S/sfx.py` → `sfx.wav`, `music.wav`.
@@ -82,7 +86,8 @@ All scripts live in `scripts/`. Work in a fresh dir (scratchpad): `WORK=<dir>; c
 }
 ```
 - Scene `start` / shot `from` = a phrase from captions.json (case/punctuation-insensitive). First shot starts with its scene.
-- Shot kinds: `speaker` · `rec` (+`t` start on the recording clock, optional `to` → time-fitted) · `anim` · `image` · `title` (+`subtitle`) · `black` (empty canvas, e.g. under the end card).
+- Cold open: `"intro": {"shots": [{"cine": "hero", "src": "stills/hero.png", "focus": "subject", "scale": "macro", "len": 3.5}, …]}` plays before the first word (edit.py shifts everything after it; cut_speaker.py pads the speaker track to match).
+- Shot kinds: `cine` (see references/cinematic.md) · `speaker` · `rec` (+`t` start on the recording clock, optional `to` → time-fitted) · `anim` · `image` · `title` (+`subtitle`) · `black` (empty canvas, e.g. under the end card).
   Options: `card`, `card_delay`, `zoom` (`tl|tr|bl|br|c` push-in to make small UI readable), `pip: false`.
 - First and last scenes get no chip by default (`"chip": true/false` overrides).
 - SFX library: boom subboom riser whoosh swing hit bighit chime ding fanfare coin blink step glitch denied success lock pop click ticks typing swell sting.

@@ -134,8 +134,24 @@ for i, c in enumerate(caps):
         e = min(e, E(caps[i + 1]["start"]))
     ecaps.append({"start": s, "end": round(e, 3), "html": c.get("html", c["text"]), "src": [c["start"], c["end"]]})
 
-save("timeline.json", {"speed": SPEED, "total": TOTAL, "keep": keep, "scenes": scenes, "caps": ecaps, "plan": plan})
-print(f"source {END - START:.1f}s → edited {m(END):.1f}s → {SPEED}x = {TOTAL:.2f}s  ({len(keep)} kept pieces)")
+# ── Cold open: cinematic shots before the first spoken word. Everything spoken shifts later by INTRO;
+# cut_speaker.py pads the speaker track with the same silence, so sync checks still compare like with like.
+INTRO = 0.0
+intro = []
+for k, sh in enumerate((P.get("intro") or {}).get("shots", [])):
+    d = snap(float(sh.get("len", 3.5)))
+    intro.append({"start": INTRO, "end": snap(INTRO + d), "scene": -1, "intro": True, "pip": False,
+                  **{key: v for key, v in sh.items() if key != "len"}})
+    INTRO = snap(INTRO + d)
+if INTRO:
+    for x in scenes + plan + ecaps:
+        x["start"], x["end"] = snap(x["start"] + INTRO), snap(x["end"] + INTRO)
+    plan = intro + plan
+    TOTAL = snap(TOTAL + INTRO)
+
+save("timeline.json", {"speed": SPEED, "total": TOTAL, "intro": INTRO, "keep": keep, "scenes": scenes, "caps": ecaps, "plan": plan})
+print(f"source {END - START:.1f}s → edited {m(END):.1f}s → {SPEED}x = {TOTAL:.2f}s  ({len(keep)} kept pieces)"
+      + (f", incl. a {INTRO:.2f}s cold open" if INTRO else ""))
 for s in scenes:
     print(f"  {s['n']} {s['title']:<22} {s['start']:6.2f} → {s['end']:6.2f}")
 for p in plan:

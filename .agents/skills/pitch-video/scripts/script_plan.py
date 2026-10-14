@@ -1,0 +1,234 @@
+"""Stage B: turn a cued script into everything the edit needs, BEFORE anyone records.
+
+usage: python script_plan.py script.md [--force]
+
+script.md (the agent writes it with the user; see references/scripts.md):
+
+    ---
+    title: Cursor 2.0 in 60 seconds
+    layout: split            # split (9:16, visuals top / face bottom) | pitch (16:9, face bubble)
+    accent: "#7c5cff"
+    url: https://cursor.com  # what film.mjs opens (optional)
+    end_title: Cursor 2.0
+    end_tagline: Eight agents. <b>One diff.</b>
+    end_links: cursor.com, @you
+    ---
+    ## Hook
+    [face]
+    Cursor just shipped the feature I have wanted for a **year**.
+    [rec site: homepage hero, scroll to the new Agents panel]
+    It runs eight agents on your code at the same time.
+    ## How it works
+    [anim lanes: eight lanes, each a task, merging into one diff]
+    ...
+    ## Outro
+    [end]
+    Link is in the comments.
+
+Cues (one per line, they apply from the NEXT spoken line):
+    [face]                          full-frame speaker
+    [rec <name>: what to show]      screen footage, filmed by film.mjs as shots/<name>/
+    [anim <name>: what it explains] motion graphic, anims/<name>.html → render_anim.mjs
+    [image <path>]                  still with a slow push-in
+    [title TEXT | subtitle]         big statement card
+    [card <name>]                   custom card overlay (cards/<name>.html) on the current shot
+    [zoom tl|tr|bl|br|c]            push in on the current shot
+    [end]                           this scene gets the end card
+Everything else that isn't a heading or blank is spoken. **bold** = emphasis (read it with weight; shown in the accent colour).
+
+Writes:
+    project.json        scenes and shots anchored to the first words of each spoken line (edit.py resolves them)
+    narration.md        spoken lines only, for fix_captions.py
+    shotlist.md         every rec/anim to make, the line it covers and roughly how long it is on screen
+    teleprompter.html   open it, press space, read. Arrow keys change speed, M mirrors for a glass prompter.
+"""
+import html, json, os, re, sys
+
+WPS = 2.6  # spoken words per second at a natural pace (~155 wpm)
+
+if len(sys.argv) < 2:
+    sys.exit(__doc__)
+src = open(sys.argv[1]).read()
+force = "--force" in sys.argv
+
+# ── front matter ──
+meta = {}
+m = re.match(r"---\n(.*?)\n---\n", src, re.S)
+if m:
+    for line in m.group(1).splitlines():
+        line = re.sub(r"\s+#.*$", "", line)
+        if ":" in line:
+            k, v = line.split(":", 1)
+            meta[k.strip()] = v.strip().strip('"').strip("'")
+    src = src[m.end():]
+
+# ── parse scenes, cues and spoken lines ──
+scenes = []  # {title, end_card, items: [("cue", kind, arg, desc) | ("say", text)]}
+for raw in src.splitlines():
+    line = raw.strip()
+    if not line or line.startswith("<!--"):
+        continue
+    if line.startswith("#"):
+        scenes.append({"title": line.lstrip("#").strip(), "end_card": False, "items": []})
+        continue
+    if not scenes:
+        scenes.append({"title": "Intro", "end_card": False, "items": []})
+    cue = re.fullmatch(r"\[(\w+)\s*([^\]:|]*)(?:[:|]\s*([^\]]*))?\]", line)
+    if cue:
+        kind, arg, desc = cue.group(1).lower(), cue.group(2).strip(), (cue.group(3) or "").strip()
+        if kind == "end":
+            scenes[-1]["end_card"] = True
+        else:
+            scenes[-1]["items"].append(("cue", kind, arg, desc))
+        continue
+    scenes[-1]["items"].append(("say", line.lstrip(">").strip()))
+
+plain = lambda s: re.sub(r"\*\*|\*", "", s)
+words = lambda s: re.findall(r"[A-Za-z0-9'’]+", plain(s))
+
+
+def anchor(text, n=4):
+    """First few words of a spoken line: edit.py finds the cut there."""
+    return " ".join(words(text)[:n])
+
+
+# ── build project.json scenes ──
+out_scenes, shotlist, problems = [], [], []
+for sc in scenes:
+    said = [x[1] for x in sc["items"] if x[0] == "say"]
+    if not said:
+        problems.append(f"scene '{sc['title']}' has no spoken line; merged into the previous scene")
+        continue
+    shots, pending, last_shot = [], [], None
+    items = sc["items"]
+    for idx, it in enumerate(items):
+        if it[0] == "cue":
+            pending.append(it)
+            continue
+        text = it[1]
+        if not pending:
+            continue
+        shot = {}
+        for _, kind, arg, desc in pending:
+            if kind == "face":
+                shot["speaker"] = True
+            elif kind == "rec":
+                shot.update({"rec": arg or "main", "t": 0})
+                shotlist.append(("rec", arg or "main", desc, text))
+            elif kind == "anim":
+                shot["anim"] = arg or f"anim{len(shotlist)}"
+                shotlist.append(("anim", shot["anim"], desc, text))
+            elif kind == "image":
+                shot["image"] = arg
+            elif kind == "title":
+                shot["title"] = arg
+                if desc:
+                    shot["subtitle"] = desc
+            elif kind == "card":
+                (shot if shot else (last_shot or shot))["card"] = arg
+            elif kind == "zoom":
+                (shot if shot else (last_shot or shot))["zoom"] = arg or "c"
+            else:
+                problems.append(f"unknown cue [{kind}] in '{sc['title']}'")
+        pending = []
+        if any(k in shot for k in ("speaker", "rec", "anim", "image", "title")):
+            if shots:
+                shot["from"] = anchor(text)
+            shots.append(shot)
+            last_shot = shot
+        elif last_shot is None and shot:
+            shots.append({"speaker": True, **shot})
+            last_shot = shots[-1]
+    if not shots:
+        # no visual cue: the end scene shows a dark canvas under the end card, anything else stays on the face
+        shots = [{"black": True}] if sc["end_card"] else [{"speaker": True}]
+    if pending:
+        problems.append(f"cue(s) after the last spoken line of '{sc['title']}' were ignored: {[p[1] for p in pending]}")
+    o = {"title": sc["title"], "start": anchor(said[0]), "shots": shots}
+    if sc["end_card"]:
+        o["end_card"] = True
+    out_scenes.append(o)
+
+# split layout: footage-free shots would leave the top half dark, so warn
+layout = meta.get("layout", "split")
+spoken = [x[1] for sc in scenes for x in sc["items"] if x[0] == "say"]
+nwords = sum(len(words(s)) for s in spoken)
+speed = float(meta.get("speed", 1.1))
+est = nwords / WPS / speed
+
+project = {
+    "title": meta.get("title", out_scenes[0]["title"] if out_scenes else "Video"),
+    "layout": layout,
+    "speed": speed,
+    "output": meta.get("output", "out/video.mp4"),
+    "theme": {"accent": meta.get("accent", "#ffe040"), "head": meta.get("font", "Inter"), "body": meta.get("font", "Inter")},
+    "music": meta.get("music", "synth"),
+    "end": {"title": meta.get("end_title", meta.get("title", "")), "tagline": meta.get("end_tagline", ""),
+            "links": [l.strip() for l in meta.get("end_links", "").split(",") if l.strip()], "by": meta.get("end_by", "")},
+    "scenes": out_scenes,
+    "sfx": [],
+}
+if meta.get("url"):
+    project["url"] = meta["url"]
+
+if os.path.exists("project.json") and not force:
+    json.dump(project, open("project.from_script.json", "w"), indent=1)
+    print("project.json exists: wrote project.from_script.json (re-run with --force to overwrite)")
+else:
+    json.dump(project, open("project.json", "w"), indent=1)
+    print("wrote project.json")
+
+# ── narration.md (for fix_captions.py) ──
+open("narration.md", "w").write("\n".join("> " + s for s in spoken) + "\n")
+
+# ── shotlist.md ──
+sl = [f"# Shot list: {project['title']}", "",
+      f"Layout: **{layout}** ({'film and animate at 1080x960, the top half of a 9:16 frame' if layout == 'split' else '1920x1080'}).",
+      "rec shots: film them in film.mjs as shots/<name>/, log ev() times, then set each shot's \"t\"/\"to\" in project.json.",
+      "anim shots: write anims/<name>.html (window.seek(t), keyed to window.CUES), then node render_anim.mjs <name>.", ""]
+for kind, name, desc, text in shotlist:
+    secs = len(words(text)) / WPS / speed
+    sl.append(f"- **{kind} `{name}`** ({secs:.0f}s+): {desc or '(describe it)'}\n  covers: \"{plain(text)}\"")
+open("shotlist.md", "w").write("\n".join(sl) + "\n")
+
+# ── teleprompter.html ──
+blocks = []
+for sc in scenes:
+    lines = [x[1] for x in sc["items"] if x[0] == "say"]
+    if not lines:
+        continue
+    body = " ".join(html.escape(l) for l in lines)
+    body = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", body)
+    blocks.append(f"<section><h2>{html.escape(sc['title'])}</h2><p>{body}</p></section>")
+open("teleprompter.html", "w").write(f"""<!doctype html><html><head><meta charset="utf-8"><title>Teleprompter: {html.escape(project['title'])}</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{{--accent:{project['theme']['accent']}}}
+html,body{{margin:0;background:#000;color:#f4f4f4;font:600 clamp(34px,5.4vw,64px)/1.45 -apple-system,Inter,system-ui,sans-serif}}
+#roll{{padding:45vh 9vw 80vh;max-width:1100px;margin:0 auto}}
+section{{margin-bottom:1.4em}} h2{{font-size:.38em;letter-spacing:.14em;text-transform:uppercase;color:#777;margin:0 0 .4em}}
+p{{margin:0}} b{{color:var(--accent)}}
+.mirror #roll{{transform:scaleX(-1)}}
+#line{{position:fixed;left:0;right:0;top:42vh;height:0;border-top:2px solid rgba(255,255,255,.12);pointer-events:none}}
+#hud{{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);font:500 14px system-ui;color:#888;background:#111;padding:8px 14px;border-radius:8px}}
+</style></head><body>
+<div id="line"></div><div id="roll">{''.join(blocks)}<section><h2>Done</h2><p>Stop recording. Send the file to your agent.</p></section></div>
+<div id="hud">space: start/pause · ↑↓ speed · M: mirror · R: restart · <span id="sp"></span></div>
+<script>
+let on=false,v=1.0,last=0;const sp=document.getElementById('sp');const show=()=>sp.textContent='speed '+v.toFixed(1)+'x';show();
+function tick(t){{if(on){{window.scrollBy(0,(t-last)*0.045*v)}}last=t;requestAnimationFrame(tick)}}requestAnimationFrame(tick);
+addEventListener('keydown',e=>{{if(e.code==='Space'){{on=!on;e.preventDefault()}}if(e.key==='ArrowUp'){{v=Math.min(3,v+.1);show();e.preventDefault()}}
+if(e.key==='ArrowDown'){{v=Math.max(.3,v-.1);show();e.preventDefault()}}if(e.key==='m'||e.key==='M')document.body.classList.toggle('mirror');
+if(e.key==='r'||e.key==='R')scrollTo(0,0)}});
+addEventListener('click',()=>on=!on);
+</script></body></html>""")
+
+# ── report ──
+print(f"{len(out_scenes)} scenes, {sum(len(s['shots']) for s in out_scenes)} shots, {nwords} words ≈ {est:.0f}s after the {speed}x speed-up")
+print("wrote narration.md, shotlist.md, teleprompter.html")
+if layout == "split":
+    face_only = sum(1 for s in out_scenes for sh in s["shots"] if sh.get("speaker"))
+    if face_only > max(2, len(out_scenes) // 2):
+        problems.append(f"{face_only} full-face shots: in split layout the top half should keep changing; add rec/anim cues")
+for p in problems:
+    print("WARN:", p)

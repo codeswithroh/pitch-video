@@ -4,7 +4,19 @@ import json, os, subprocess
 TB = os.environ.get("PITCH_VIDEO_HOME", os.path.expanduser("~/.cache/pitch-video"))
 SKILL = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FPS = 30
-W, H = 1920, 1080
+
+
+def layout():
+    """'pitch' (16:9, face bubble) or 'split' (9:16: visuals on the top half, the speaker on the bottom half)."""
+    try:
+        return json.load(open("project.json")).get("layout", "pitch")
+    except (OSError, ValueError):
+        return "pitch"
+
+
+# The visual canvas: what build_bg.py renders and what footage, animations and cards are designed for.
+# In split layout it is the top half of a 1080x1920 frame; the speaker fills the bottom half.
+W, H = (1080, 960) if layout() == "split" else (1920, 1080)
 
 
 # Voice chain shared by compose.py, verify.py and selftest.py: de-rumble, de-mud, presence, compress,
@@ -22,6 +34,30 @@ def audio_graph(music_gain=0.55, sfx_gain=0.85):
         f"[2:a]aresample=48000,volume={sfx_gain}[fx]",
         "[voice][musd][fx]amix=inputs=3:duration=first:normalize=0,alimiter=limit=0.95:level=false,aresample=48000[aout]",
     ])
+
+
+def alpha_track(name, items, total, size, d="ov"):
+    """Bake timed transparent PNGs [(start, end, png)] into one qtrle alpha track <d>/<name>.mov.
+    Via the concat demuxer: feeding dozens of looped PNGs into one filter graph is 10-50x slower."""
+    blank = os.path.abspath(f"{d}/blank_{size[0]}x{size[1]}.png")
+    if not os.path.exists(blank):
+        run(["-f", "lavfi", "-i", f"color=c=black@0.0:s={size[0]}x{size[1]},format=rgba", "-frames:v", "1", blank])
+    lines, cur = [], 0.0
+    for a, b, png in sorted(items):
+        a, b = max(a, cur), min(b, total)
+        if b <= a:
+            continue
+        if a > cur:
+            lines += [f"file '{blank}'", f"duration {a - cur:.4f}"]
+        lines += [f"file '{os.path.abspath(png)}'", f"duration {b - a:.4f}"]
+        cur = b
+    if cur < total:
+        lines += [f"file '{blank}'", f"duration {total - cur:.4f}"]
+    lines.append(f"file '{blank}'")
+    open(f"{d}/{name}.txt", "w").write("\n".join(lines) + "\n")
+    run(["-f", "concat", "-safe", "0", "-i", f"{d}/{name}.txt", "-vf", f"fps={FPS},format=rgba", "-t", f"{total:.4f}",
+         "-c:v", "qtrle", f"{d}/{name}.mov"])
+    return f"{d}/{name}.mov"
 
 
 def run(args, **kw):

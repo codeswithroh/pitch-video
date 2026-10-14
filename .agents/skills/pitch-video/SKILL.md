@@ -1,12 +1,28 @@
 ---
 name: pitch-video
-description: Turn a talking-head recording (someone reading a pitch/demo script) into a polished product demo video — pause-trimmed and sped up 1.1x, perfectly lip-synced, with app footage cut to the words, a face bubble, captions, scene chips, explainer animations, cinematic SFX and ducked music. Use when the user uploads/points to a video of themselves talking and wants a pitch, demo, launch or hackathon submission video.
+description: Make any talking video, from idea to verified file. Suggests video ideas from who the person is (profile, audience, goal), writes the script with the edit cued into it and a teleprompter, then turns their single take into a finished video - product walkthroughs of new AI tools, reviews, tutorials, build-in-public updates, hot takes, launch and pitch/demo videos. Two layouts - split (9:16, product footage and motion graphics on the top half, the speaker on the bottom) and pitch (16:9 with a face bubble). Pause-trimmed, retakes removed, lip-synced, captions, explainer animations, SFX and ducked music, checked by measurement. Use when someone wants a video idea, a script, or uploads/points to a recording of themselves talking.
 ---
 
 # pitch-video
 
-Input: a talking-head video (+ ideally the script they read, + the product: a URL, local dev server or repo).
-Output: `out/demo.mp4` (1080p30) + `out/demo_small.mp4`, verified by `verify.py` before you hand it over.
+Input: anything from "what video should I make?" to a finished recording (+ the script, + what to show: a URL, local dev server, repo).
+Output: the video at `project.json` → `output` (split: 1080x1920; pitch: 1080p30 + `_small`), verified by `verify.py` before you hand it over.
+
+Start where the user is:
+- **No idea yet** → Stage A (ideas). **Has an idea, no script** → Stage B (script). **Has a recording** → the pipeline (step 0a on).
+- The person only ever does two things: pick an idea and read the script once on camera. Everything else is yours.
+
+## Stage A: ideas
+Read `references/ideas.md`. Profile the person from what you can already see (repo, links, posts) before asking anything, show them a 4-line profile, then 5 ideas in the given format, ranked, with one recommended. Ideas must fit *them*, be timely, and have something real to put on screen.
+
+## Stage B: script
+Read `references/scripts.md`. Write `script.md` with front matter (layout, accent, end card) and cues (`[face]`, `[rec name: what to film]`, `[anim name: what it explains]`, `[title …]`, `[end]` …) on their own lines before the line they cover. Show them the plain script, revise until it sounds like them, then:
+`$PY $S/script_plan.py script.md` → `project.json` (scenes and shots already anchored to the words), `narration.md`, `shotlist.md`, `teleprompter.html`. Fix any WARN. Send them the teleprompter + recording tips from `references/scripts.md`.
+While they record, you can already film every `rec` and build every `anim` on the shot list (step 5); times get filled in after.
+
+## Layouts
+- **`"layout": "split"`**: 9:16. The canvas (footage, animations, cards, titles, end card) is **1080x960** and fills the top half; the speaker fills the bottom half; captions sit on the seam; `speaker` shots go full-frame face. Film and design animations at 1080x960 (film.template.mjs and render_anim.mjs do it automatically; write anim CSS in `vw/vh` or for 1080x960). Footage of another size sits on a blurred copy of itself. Best for Reels, Shorts, TikTok, X, and walkthroughs of new tools.
+- **`"layout": "pitch"`** (default): 16:9 with a face bubble. Best for submissions, YouTube, landing pages. `compose_vertical.py` can still cut a 9:16 version from it.
 
 All scripts live in `scripts/`. Work in a fresh dir (scratchpad): `WORK=<dir>; cd $WORK`.
 `PY=~/.cache/pitch-video/venv/bin/python`, `S=<this skill dir>/scripts`.
@@ -16,9 +32,10 @@ All scripts live in `scripts/`. Work in a fresh dir (scratchpad): `WORK=<dir>; c
 0a. **Rules first:** `$PY $S/rules.py show`, and follow every active rule. They are the user's lasting preferences from past videos; edit.py applies the numeric ones (speed, pauses, music level, accent) automatically.
 0. **Setup (once):** `bash $S/setup.sh` — checks ffmpeg/whisper-cli/node, builds the toolbox in `~/.cache/pitch-video`.
 1. **Prep:** `$PY $S/prep.py <video>` → `source.mov` (CFR 30, 48 kHz, A/V offset fixed), `captions_raw.json`, `sil.json`, `face.json`.
-2. **Captions:** `$PY $S/fix_captions.py <script.md>` (script optional). Read the diff it prints; hand-fix `captions.json`
+2. **Captions:** `$PY $S/fix_captions.py narration.md` (or their script; optional). Read the diff it prints; hand-fix `captions.json`
    (`text` + `html`; use `<b>` for 1–4 key words per scene; fill any `(?)` lines). Never change start/end.
-3. **Plan:** write `project.json` (schema below). Anchor every scene and shot to a spoken phrase. Then `$PY $S/edit.py`.
+2b. **Retakes:** `$PY $S/retakes.py` lists lines they stumbled on and repeated; check the list, then `--apply` (drops the earlier attempt).
+3. **Plan:** `project.json` came from script_plan.py in Stage B; otherwise write it (schema below). Anchor every scene and shot to a spoken phrase. Then `$PY $S/edit.py`.
    Re-run edit.py after any change; it prints the full timeline — sanity check shot lengths against the lines.
 4. **Speaker cut:** `$PY $S/cut_speaker.py` (fails loudly on any duration mismatch).
 5. **Footage:** copy `templates/film.template.mjs` → `film.mjs`, script one deterministic beat per shot, run `node film.mjs`.
@@ -28,17 +45,17 @@ All scripts live in `scripts/`. Work in a fresh dir (scratchpad): `WORK=<dir>; c
 6. **Picture:** `$PY $S/build_bg.py` → `bg.mp4` (every part must report the expected frame count).
 7. **Overlays:** `node $S/render_overlays.mjs`.
 8. **Sound:** `$PY $S/sfx.py` → `sfx.wav`, `music.wav`.
-9. **Compose:** `$PY $S/compose.py`.
-9b. **Vertical (optional):** `$PY $S/compose_vertical.py` → `out/demo_vertical.mp4` (1080x1920 for Reels/Shorts/TikTok/X: product on top, face below, captions on the seam; reuses the verified audio).
+9. **Compose:** pitch layout: `$PY $S/compose.py`. Split layout: `$PY $S/compose_vertical.py` (writes the 9:16 video and its own audio; compose.py refuses split).
+9b. **Vertical cut of a pitch video (optional):** `$PY $S/compose_vertical.py` → `out/<name>_vertical.mp4` (16:9 picture on top, face below; reuses the verified audio).
 9c. **Posts:** `$PY $S/draft_posts.py` → `out/posts.md`: X thread, LinkedIn, Product Hunt, Reddit and Show HN drafts built from what was actually said. Polish them with the user; never post unreviewed.
-10. **Verify:** `$PY $S/verify.py` — must print `RESULT: PASS`. Check [0] is a pipeline self-test (synthetic flash+click clip through the same cut, speed-up, mix and mux); if it fails, the pipeline itself is out of sync, so fix that before touching the footage. Run it alone with `$PY $S/selftest.py`. `UNVERIFIED` means a check could not run (e.g. no face found): fix the cause or tell the user plainly; never call it passed. Also Read `out/contact.png`. Fix and re-run from the
+10. **Verify:** `$PY $S/verify.py` — must print `RESULT: PASS`. Check [0] is a pipeline self-test (synthetic flash+click clip through the same cut, speed-up, mix and mux); if it fails, the pipeline itself is out of sync, so fix that before touching the footage. Run it alone with `$PY $S/selftest.py`. `UNVERIFIED` means a check could not run or was inconclusive (no face found, or mouth movement doesn't track the voice: a still image, a tiny or hidden face): fix the cause or tell the user plainly; never call it passed. Also Read `out/contact.png`. Fix and re-run from the
     earliest affected step. Only then send the file (state it was checked by measurement, not by ear).
 
 ## project.json
 
 ```json
 {
-  "title": "NIGHTFALL", "speed": 1.1, "output": "out/demo.mp4",
+  "title": "NIGHTFALL", "layout": "pitch", "speed": 1.1, "output": "out/demo.mp4",
   "theme": {"accent": "#ffe040", "head": "Inter", "body": "Inter"},
   "pause": {"scene": 1.0, "long": 0.6, "short_max": 0.8, "head": 0.25, "tail": 2.5},
   "holds": [{"after": "Until now", "keep": 1.8}],
@@ -65,13 +82,16 @@ All scripts live in `scripts/`. Work in a fresh dir (scratchpad): `WORK=<dir>; c
 }
 ```
 - Scene `start` / shot `from` = a phrase from captions.json (case/punctuation-insensitive). First shot starts with its scene.
-- Shot kinds: `speaker` · `rec` (+`t` start on the recording clock, optional `to` → time-fitted) · `anim` · `image` · `title` (+`subtitle`).
+- Shot kinds: `speaker` · `rec` (+`t` start on the recording clock, optional `to` → time-fitted) · `anim` · `image` · `title` (+`subtitle`) · `black` (empty canvas, e.g. under the end card).
   Options: `card`, `card_delay`, `zoom` (`tl|tr|bl|br|c` push-in to make small UI readable), `pip: false`.
 - First and last scenes get no chip by default (`"chip": true/false` overrides).
 - SFX library: boom subboom riser whoosh swing hit bighit chime ding fanfare coin blink step glitch denied success lock pop click ticks typing swell sting.
   Auto: whoosh per scene, riser→boom on the hook cut, pop+thud on cards, riser→sub-boom on titles, boom+shimmer after the last word.
 
-## Story shape that works (~2 min, ~300 words)
+## Story shapes
+Split videos: see the format table in `references/ideas.md` (walkthrough, review, tutorial, update, hot take…): hook on the face, product on screen by the second line, top half changes every 3–6 s.
+
+Pitch/demo (~2 min, ~300 words):
 Hook (face, 1 bold claim) → Problem (show it, 1 card) → "Until now." beat → Meet the product → Onboarding →
 Core experience → **Proof** (show the hard thing actually working) → How it works (one animated diagram) → Outro (end card + "come play/try it").
 Open on the face (trust), cut to product within ~4 s, keep the face bubble on during product shots, return to full-frame face for the close.

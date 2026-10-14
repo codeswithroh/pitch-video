@@ -8,6 +8,9 @@ import { spawn } from "node:child_process";
 import { createRequire } from "node:module";
 const TB = process.env.PITCH_VIDEO_HOME || `${process.env.HOME}/.cache/pitch-video`;
 const { chromium } = createRequire(`${TB}/package.json`)("playwright");
+// Canvas: 1920x1080, or 1080x960 (the top half of a 9:16 frame) when project.json has "layout": "split".
+const SPLIT = fs.existsSync("project.json") && JSON.parse(fs.readFileSync("project.json", "utf8")).layout === "split";
+const CW = SPLIT ? 1080 : 1920, CH = SPLIT ? 960 : 1080;
 
 const name = process.argv[2];
 const t = JSON.parse(fs.readFileSync("timeline.json", "utf8"));
@@ -19,7 +22,7 @@ const cues = t.caps
   .map((c) => ({ t: +(c.start - shot.start).toFixed(3), end: +(c.end - shot.start).toFixed(3), text: c.html.replace(/<[^>]+>/g, "") }));
 
 const b = await chromium.launch();
-const p = await b.newPage({ viewport: { width: 1920, height: 1080 } });
+const p = await b.newPage({ viewport: { width: CW, height: CH } });
 await p.addInitScript((c) => (window.CUES = c), cues);
 await p.goto("file://" + process.cwd() + `/anims/${name}.html`);
 await p.waitForTimeout(1200);

@@ -31,6 +31,12 @@ def find(phrase, after=-1):
     for i, c in enumerate(caps):
         if i > after and norm(phrase) in norm(c["text"]):
             return i
+    # The phrase may straddle two caption lines (whisper chunks don't follow sentences): cut at the line it starts in.
+    for i in range(max(after + 1, 0), len(caps) - 1):
+        a = norm(caps[i]["text"])
+        k = (a + " " + norm(caps[i + 1]["text"])).find(norm(phrase))
+        if k != -1:
+            return i if k < len(a) else i + 1
     lines = "\n".join(f"  [{i}] {c['text']}" for i, c in enumerate(caps))
     sys.exit(f"phrase not found (after line {after}): {phrase!r}\ncaption lines:\n{lines}")
 

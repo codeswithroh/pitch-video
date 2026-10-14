@@ -9,7 +9,7 @@ AAC track whose timestamps said 114 s but held 105 s of samples (lips drifted, v
 """
 import os, sys
 sys.path.insert(0, os.path.dirname(__file__))
-from common import load, run, probe, audio_graph, FPS
+from common import load, run, probe, audio_graph, alpha_track, FPS
 
 t = load("timeline.json")
 P = load("project.json")
@@ -18,24 +18,11 @@ pip = load("ov/pip.json")
 TOTAL = t["total"]
 OUT = P.get("output", "out/demo.mp4")
 os.makedirs(os.path.dirname(OUT) or ".", exist_ok=True)
-run(["-f", "lavfi", "-i", "color=c=black@0.0:s=1920x1080,format=rgba", "-frames:v", "1", "ov/blank.png"])
+if load("project.json").get("layout") == "split":
+    sys.exit("layout is 'split': run compose_vertical.py instead (it writes the 9:16 video and its audio)")
 
 def track(name, items):
-    items = sorted(items)
-    lines, cur = [], 0.0
-    for a, b, png in items:
-        a, b = max(a, cur), min(b, TOTAL)
-        if b <= a:
-            continue
-        if a > cur:
-            lines += [f"file '{os.path.abspath('ov/blank.png')}'", f"duration {a - cur:.4f}"]
-        lines += [f"file '{os.path.abspath(png)}'", f"duration {b - a:.4f}"]
-        cur = b
-    if cur < TOTAL:
-        lines += [f"file '{os.path.abspath('ov/blank.png')}'", f"duration {TOTAL - cur:.4f}"]
-    lines.append(f"file '{os.path.abspath('ov/blank.png')}'")
-    open(f"ov/{name}.txt", "w").write("\n".join(lines) + "\n")
-    run(["-f", "concat", "-safe", "0", "-i", f"ov/{name}.txt", "-vf", f"fps={FPS},format=rgba", "-t", f"{TOTAL:.4f}", "-c:v", "qtrle", f"ov/{name}.mov"])
+    alpha_track(name, items, TOTAL, (1920, 1080))
 
 track("trk_caps", [(c["start"], c["end"], f"ov/cap{i:03d}.png") for i, c in enumerate(t["caps"])])
 cards = []

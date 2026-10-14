@@ -11,8 +11,10 @@ mkdir work && cd work
 | # | Command | Reads | Writes |
 | --- | --- | --- | --- |
 | 0 | `bash $S/setup.sh` (once per machine) | | `~/.cache/pitch-video/` toolbox |
+| B | `$PY $S/script_plan.py script.md` (before recording) | cued script | `project.json`, `narration.md`, `shotlist.md`, `teleprompter.html` |
 | 1 | `$PY $S/prep.py ~/Movies/take.mov` | your recording | `source.mov`, `captions_raw.json`, `sil.json`, `face.json` |
-| 2 | `$PY $S/fix_captions.py script.md` | `captions_raw.json`, script | `captions.json` (then proofread it) |
+| 2 | `$PY $S/fix_captions.py narration.md` | `captions_raw.json`, script | `captions.json` (then proofread it) |
+| 2b | `$PY $S/retakes.py [--apply]` | `captions.json` | `captions.json` without stumbled attempts |
 | 3 | write `project.json`, then `$PY $S/edit.py` | `captions.json`, `project.json` | `timeline.json` |
 | 4 | `$PY $S/cut_speaker.py` | `source.mov`, `timeline.json` | `speaker_cut.mov` |
 | 5 | `node film.mjs` (from `templates/film.template.mjs`) | your app | `shots/<name>/`, `shots/events.json` |
@@ -20,7 +22,7 @@ mkdir work && cd work
 | 6 | `$PY $S/build_bg.py` | shots, anims, speaker | `bg.mp4` |
 | 7 | `node $S/render_overlays.mjs` | `timeline.json`, `cards/` | `ov/*.png` |
 | 8 | `$PY $S/sfx.py` | `timeline.json`, `project.json` | `sfx.wav`, `music.wav` |
-| 9 | `$PY $S/compose.py` | everything above | `out/demo.mp4`, `out/demo_small.mp4` |
+| 9 | `$PY $S/compose.py` (pitch) or `$PY $S/compose_vertical.py` (split) | everything above | the video at `project.json` → `output` |
 | 10 | `$PY $S/verify.py` | final + stems | report, `out/contact.png`, exit code |
 
 ## What "verified" means

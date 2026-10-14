@@ -10,7 +10,7 @@ Optional: "zoom": "tl"|"tr"|"bl"|"br"|"c" pushes in toward that corner (to make 
 """
 import bisect, json, os, sys
 sys.path.insert(0, os.path.dirname(__file__))
-from common import load, run, probe, FPS, W, H
+from common import layout, load, run, probe, FPS, W, H
 
 t = load("timeline.json")
 face = load("face.json")
@@ -37,6 +37,14 @@ cw, ch = round(sw * scale / 2) * 2, round(sh * scale / 2) * 2
 cx = min(max(face["cx"] * scale - W / 2, 0), cw - W)
 cy = min(max(face["cy"] * scale - H * 0.42, 0), ch - H)
 SPEAKER_VF = f"scale={cw}:{ch},crop={W}:{H}:{int(cx)}:{int(cy)},eq=contrast=1.04:saturation=1.06"
+
+# Footage that doesn't match the canvas (16:9 recordings in the split layout's 1080x960 top half) sits on a
+# blurred, darkened copy of itself instead of flat bars. Film at the canvas size to avoid it entirely.
+if layout() == "split":
+    FIT = (f"split[f0][f1];[f0]scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},boxblur=24:2,eq=brightness=-0.18[blur];"
+           f"[f1]scale={W}:{H}:force_original_aspect_ratio=decrease[fit];[blur][fit]overlay=(W-w)/2:(H-h)/2")
+else:
+    FIT = f"scale={W}:{H}:force_original_aspect_ratio=decrease,pad={W}:{H}:(ow-iw)/2:(oh-ih)/2:color={BG}"
 
 for i, p in enumerate(t["plan"]):
     out = f"parts/p{i:02d}.mp4"
@@ -66,8 +74,7 @@ for i, p in enumerate(t["plan"]):
                 lines.append(f"file '{os.path.abspath(f'shots/{p['rec']}/{idx[k]:06d}.jpg')}'\nduration {seg:.4f}")
         lines.append(f"file '{os.path.abspath(f'shots/{p['rec']}/{idx[sel[-1]]:06d}.jpg')}'")
         open(f"parts/p{i:02d}.txt", "w").write("\n".join(lines) + "\n")
-        run(["-f", "concat", "-safe", "0", "-i", f"parts/p{i:02d}.txt", "-vf",
-             f"scale={W}:{H}:force_original_aspect_ratio=decrease,pad={W}:{H}:(ow-iw)/2:(oh-ih)/2:color={BG},fps={FPS},tpad=stop_mode=clone:stop_duration=5" + z,
+        run(["-f", "concat", "-safe", "0", "-i", f"parts/p{i:02d}.txt", "-filter_complex", FIT + f",fps={FPS},tpad=stop_mode=clone:stop_duration=5" + z,
              "-frames:v", str(nfr), *ENC, out])
     else:  # title / black
         run(["-f", "lavfi", "-i", f"color=c={BG}:s={W}x{H}:r={FPS}", "-frames:v", str(nfr), *ENC, out])

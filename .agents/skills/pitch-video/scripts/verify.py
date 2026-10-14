@@ -75,7 +75,11 @@ try:
     sc = {L: np.dot(o[max(0, L):m + min(0, L)], r_[max(0, -L):m - max(0, L)]) / m for L in range(-15, 16)}
     L = max(sc, key=sc.get)
     print(f"[3] lip sync: mouth vs voice best lag {L * 33:+d} ms (r={sc[L]:.2f}; + = picture later). Face found in {100 * np.mean(~np.isnan(op)):.0f}% of frames")
-    if sc[L] > 0.15 and not (-70 <= L * 33 <= 140):
+    if sc[L] < 0.1:
+        # Mouth movement doesn't track the voice at any lag (a still image, face too small, mouth hidden):
+        # the offset above is noise, so this was not measured. Real talking heads score ~0.2-0.4.
+        skipped.append(f"lip sync inconclusive (mouth vs voice r={sc[L]:.2f}, expected > 0.1)")
+    elif sc[L] > 0.15 and not (-70 <= L * 33 <= 140):
         fails.append(f"lip sync off by {L * 33} ms")
 except Exception as e:
     print("[3] lip sync check SKIPPED:", e)

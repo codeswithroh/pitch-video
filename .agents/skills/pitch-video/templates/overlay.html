@@ -5,7 +5,7 @@
 <link id="fonts" rel="stylesheet" />
 <style>
   :root { --accent: #ffe040; --ink: #ffffff; --soft: #c9d2ff; --panel: rgba(6, 8, 18, 0.8); --head: "Inter"; --body: "Inter"; }
-  html, body { margin: 0; width: 1920px; height: 1080px; background: transparent; overflow: hidden; }
+  html, body { margin: 0; width: 100vw; height: 100vh; background: transparent; overflow: hidden; }
   * { box-sizing: border-box; }
   #root { position: absolute; inset: 0; }
   /* Captions: big, high-contrast, bottom-centre; shifted left while the face bubble is on screen. */
@@ -36,6 +36,15 @@
   .end .by { font: 500 28px var(--body), sans-serif; color: #8a90b0; }
   .end .credit { position: absolute; bottom: 34px; font: 500 20px var(--body), sans-serif; color: rgba(255,255,255,.42); letter-spacing: .3px; }
   .pipframe { position: absolute; border-radius: 28px; border: 5px solid var(--accent); box-shadow: 0 14px 40px rgba(0,0,0,.6); }
+  /* Split layout: the canvas is the 1080x960 top half of a 9:16 frame. */
+  .split .chip { left: 32px; top: 36px; font-size: 24px; }
+  .split .big h1 { font-size: 104px; letter-spacing: 2px; padding: 0 40px; }
+  .split .big p { font-size: 40px; padding: 0 60px; text-align: center; }
+  .split .end h1 { font-size: 112px; letter-spacing: 3px; text-align: center; padding: 0 40px; }
+  .split .end .tag { font-size: 42px; text-align: center; padding: 0 60px; }
+  .split .end .links { flex-wrap: wrap; justify-content: center; padding: 0 40px; }
+  .split .end .links span { font-size: 30px; }
+  .split .end .credit { bottom: 24px; font-size: 22px; }
 </style>
 <style id="extra"></style>
 </head>

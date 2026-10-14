@@ -1,0 +1,79 @@
+# Stage B: writing the script they'll read
+
+The script is written for one take, read off a teleprompter, and it already contains the edit: every visual
+is a cue in the script, anchored to the line it appears on. `script_plan.py` turns it into `project.json`,
+so after they record, the video assembles without guessing.
+
+## Length
+
+~155 spoken words per minute, then the 1.1x speed-up.
+
+| Target | Words |
+|---|---|
+| 30 s | 75–85 |
+| 45 s | 110–125 |
+| 60 s | 150–165 |
+| 90 s | 225–245 |
+| 2 min | 300–330 |
+
+## Writing rules
+
+- **First line is the hook.** A specific claim or a number, said in under 3 seconds. Not "Hey guys", not their name.
+- **Write for the mouth.** Short sentences. One idea per line. Contractions. Words they would actually say; read it aloud in their voice before handing it over.
+- **Every line earns its visual.** In split layout the top half must change every 3–6 seconds: put a cue before almost every line. In pitch layout, every scene needs at least one product shot.
+- **Show, then say.** Never claim something the top half can't show (a feature you can't film, a number with no source).
+- **Bold 1–3 words per scene** (`**like this**`): they read them with weight and they turn accent-coloured in the captions.
+- **Names and jargon spelled the way they're said** stay consistent with the product's own spelling; fix_captions.py corrects the transcript to the script.
+- **One call to action**, at the end, matching their goal.
+- No em dashes, no "game-changer", "revolutionary", "in today's fast-paced world", "let's dive in".
+- Third-party products: describe what you saw, don't invent features. Film the real site. Say "here's what I found", not marketing copy.
+
+## Format (script.md)
+
+```
+---
+title: Cursor 2.0 in 60 seconds
+layout: split            # split | pitch
+accent: "#7c5cff"        # pull from the product's brand when it's about a product
+url: https://cursor.com  # what film.mjs opens
+end_title: Cursor 2.0
+end_tagline: Eight agents. <b>One diff.</b>
+end_links: cursor.com, @handle
+---
+## Hook
+[face]
+Cursor just shipped the feature I have wanted for a **year**.
+[rec site: homepage hero, scroll to the new Agents panel]
+It runs eight agents on your code at the same time.
+
+## How it works
+[anim lanes: eight lanes, each a task, merging into one diff]
+Each agent gets its own copy of the repo, so they never step on each other.
+[title ONE DIFF. | you review once]
+When they finish, you review one clean diff.
+
+## Outro
+[end]
+Link is in the comments. Try it on your messiest repo.
+```
+
+Cues go on their own line and apply from the next spoken line:
+`[face]` · `[rec <name>: what to film]` · `[anim <name>: what it explains]` · `[image <path>]` · `[title TEXT | subtitle]` · `[card <name>]` · `[zoom tl|tr|bl|br|c]` · `[end]`
+
+Shape that works for split videos: open on `[face]` for the hook (trust), cut to the product by the second line, keep the top half moving, end on `[end]` with one action.
+
+## Hand-off
+
+1. Show them the script as plain text (no cues) plus a one-line summary of what will be on screen.
+2. Revise until they'd say it the same way out loud.
+3. Run `$PY $S/script_plan.py script.md`. It writes `project.json`, `narration.md`, `shotlist.md` and `teleprompter.html`, and prints the estimated length. Fix any WARN lines.
+4. Send them `teleprompter.html` with the recording tips below.
+
+## Recording tips to send
+
+- Phone or webcam at eye level, window light in front of you, quiet room. Earbuds mic is fine.
+- Open `teleprompter.html` on the screen behind the camera (or on a laptop just under the lens). Space starts it, arrows change speed.
+- Record in one take. If you stumble, pause, then repeat the whole sentence; the edit removes the pause and the mistake.
+- Leave a second of silence before the first line and after the last one.
+- **Split layout:** frame yourself head and shoulders, centered, with space above your head. You'll be on the bottom half.
+- Send the raw file. Don't trim it.

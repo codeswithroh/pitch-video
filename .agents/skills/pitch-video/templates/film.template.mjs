@@ -15,6 +15,10 @@ const TB = process.env.PITCH_VIDEO_HOME || `${process.env.HOME}/.cache/pitch-vid
 const { chromium } = createRequire(`${TB}/package.json`)("playwright");
 
 const URL = process.env.APP_URL || "http://localhost:5173/";
+// Film at the canvas size: 1920x1080, or 1080x960 for "layout": "split" (sites render their tablet layout,
+// which fills the top half without letterboxing).
+const SPLIT = fs.existsSync("project.json") && JSON.parse(fs.readFileSync("project.json", "utf8")).layout === "split";
+const VW = SPLIT ? 1080 : 1920, VH = SPLIT ? 960 : 1080;
 const OUT = "shots";
 fs.mkdirSync(OUT, { recursive: true });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -29,7 +33,7 @@ const ev = (shot, what, extra = {}) => {
 
 const browser = await chromium.launch({
   headless: false,
-  args: ["--window-size=1920,1180", "--force-device-scale-factor=1", "--autoplay-policy=no-user-gesture-required"],
+  args: [`--window-size=${VW},${VH + 100}`, "--force-device-scale-factor=1", "--autoplay-policy=no-user-gesture-required"],
 });
 
 /** Continuous screencast of `page` into shots/<name>/ (≈30 fps JPEG) with timestamps on the ev() clock. */
@@ -46,7 +50,7 @@ async function recorder(ctx, page, name) {
     stamps.push([i, f.metadata.timestamp]);
     cdp.send("Page.screencastFrameAck", { sessionId: f.sessionId }).catch(() => {});
   });
-  await cdp.send("Page.startScreencast", { format: "jpeg", quality: 88, maxWidth: 1920, maxHeight: 1080, everyNthFrame: 2 });
+  await cdp.send("Page.startScreencast", { format: "jpeg", quality: 88, maxWidth: VW, maxHeight: VH, everyNthFrame: 2 });
   const startedAt = (Date.now() - T0) / 1000;
   ev(name, "rec-start");
   return {
@@ -60,7 +64,7 @@ async function recorder(ctx, page, name) {
 }
 
 async function newPage(seed = {}) {
-  const ctx = await browser.newContext({ viewport: { width: 1920, height: 1080 } });
+  const ctx = await browser.newContext({ viewport: { width: VW, height: VH } });
   await ctx.addInitScript((s) => { for (const [k, v] of Object.entries(s)) localStorage.setItem(k, v); }, seed);
   const page = await ctx.newPage();
   page.on("pageerror", (e) => console.log("pageerror", e.message));

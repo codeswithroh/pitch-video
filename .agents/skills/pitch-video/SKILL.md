@@ -17,7 +17,7 @@ Read `references/ideas.md`. Profile the person from what you can already see (re
 
 ## Stage B: script
 Read `references/scripts.md`. Write `script.md` with front matter (layout, accent, end card) and cues (`[face]`, `[rec name: what to film]`, `[anim name: what it explains]`, `[title …]`, `[end]` …) on their own lines before the line they cover. Show them the plain script, revise until it sounds like them, then:
-`$PY $S/script_plan.py script.md` → `project.json` (scenes and shots already anchored to the words), `narration.md`, `shotlist.md`, `teleprompter.html`. Fix any WARN. Send them the teleprompter + recording tips from `references/scripts.md`.
+`$PY $S/script_plan.py script.md` → `project.json` (scenes and shots already anchored to the words), `narration.md`, `shotlist.md`, `teleprompter.html`. Fix any WARN. Send them the teleprompter + recording tips from `references/scripts.md`, and have them record a 5 s test first: `$PY $S/check_take.py test.mov` must say READY (real 30 fps, lit face, framing, sound) before the real take.
 While they record, you can already film every `rec` and build every `anim` on the shot list (step 5); times get filled in after.
 
 ## Cinematic shots

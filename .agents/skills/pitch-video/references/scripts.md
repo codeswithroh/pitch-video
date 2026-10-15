@@ -79,7 +79,13 @@ Shape that works for split videos: open on `[face]` for the hook (trust), cut to
 
 ## Recording tips to send
 
-- Phone or webcam at eye level, window light in front of you, quiet room. Earbuds mic is fine.
+**Test before the real take.** Have them record 5–10 seconds of talking with the exact setup, then run
+`$PY $S/check_take.py test.mov`. It measures the real frame rate (webcams drop to ~10 fps in dim light while the
+file still says 30), freezes, face brightness, framing, sound and sync, and lists what to fix. Only record the
+real take once it says READY: a choppy or dark take can be smoothed, but never made to look natural.
+
+- Light IN FRONT of you (a lamp or window facing you, at eye level), never only behind you. Dim faces make webcams drop to ~10 fps, which no edit can fully fix.
+- Phone (or iPhone as Continuity Camera) beats a laptop webcam. Close heavy apps while recording. Quiet room; earbuds mic is fine.
 - Open `teleprompter.html` on the screen behind the camera (or on a laptop just under the lens). Space starts it, arrows change speed.
 - Record in one take. If you stumble, pause, then repeat the whole sentence; the edit removes the pause and the mistake.
 - Leave a second of silence before the first line and after the last one.

@@ -13,6 +13,8 @@ ap = argparse.ArgumentParser()
 ap.add_argument("input")
 ap.add_argument("--noise", type=float, default=-35)
 ap.add_argument("--minsil", type=float, default=0.35)
+ap.add_argument("--av-offset", type=float, default=None, help="force an extra audio shift in ms (+ = later); skips auto-alignment")
+ap.add_argument("--no-av-fix", action="store_true", help="don't auto-correct a take whose lips and voice are out of sync")
 a = ap.parse_args()
 
 # ── 1. Normalize with explicit A/V alignment ──
@@ -26,13 +28,37 @@ if au is None:
     sys.exit("input has no audio track")
 off = float(au.get("start_time", 0)) - float(v.get("start_time", 0))
 vdur = float(v.get("duration") or info["format"]["duration"])
-afix = f",adelay={int(off * 1000)}:all=1" if off > 0.005 else (f",atrim=start={-off},asetpts=PTS-STARTPTS" if off < -0.005 else "")
 print(f"audio offset {off * 1000:+.0f} ms, duration {vdur:.2f}s")
-run(["-i", a.input, "-filter_complex",
-     f"[0:v]setpts=PTS-STARTPTS,fps=30,scale=-2:1080,format=yuv420p[v];"
-     f"[0:a]asetpts=PTS-STARTPTS,aresample=48000{afix},apad[a]",
-     "-map", "[v]", "-map", "[a]", "-t", f"{vdur:.3f}", "-c:v", "libx264", "-preset", "fast", "-crf", "15",
-     "-c:a", "pcm_s16le", "-ar", "48000", "-ac", "2", "source.mov"])
+
+
+def normalize(off):
+    afix = f",adelay={int(off * 1000)}:all=1" if off > 0.005 else (f",atrim=start={-off},asetpts=PTS-STARTPTS" if off < -0.005 else "")
+    run(["-i", a.input, "-filter_complex",
+         f"[0:v]setpts=PTS-STARTPTS,fps=30,scale=-2:1080,format=yuv420p[v];"
+         f"[0:a]asetpts=PTS-STARTPTS,aresample=48000{afix},apad[a]",
+         "-map", "[v]", "-map", "[a]", "-t", f"{vdur:.3f}", "-c:v", "libx264", "-preset", "fast", "-crf", "15",
+         "-c:a", "pcm_s16le", "-ar", "48000", "-ac", "2", "source.mov"])
+
+
+if a.av_offset is not None:
+    off += a.av_offset / 1000
+    print(f"forced extra audio shift {a.av_offset:+.0f} ms")
+normalize(off)
+# Container timestamps aren't the whole story: webcams in low light, screen recorders under load and re-encodes
+# (lost AAC priming, frame interpolation) can put the voice 100-200 ms off the lips. Measure it on the picture
+# itself and correct the take before anything is transcribed, so every later step inherits a synced source.
+if a.av_offset is None and not a.no_av_fix:
+    try:
+        from common import lip_lag
+        lag, r, seen = lip_lag("source.mov", 0, min(vdur, 75))
+        print(f"lip sync of the raw take: {lag:+d} ms (r={r:.2f}, face in {100 * seen:.0f}% of frames)")
+        if r >= 0.2 and abs(lag) >= 50:
+            off += lag / 1000            # picture earlier than sound (lag < 0) → move the audio earlier, and vice versa
+            normalize(off)
+            lag2, r2, _ = lip_lag("source.mov", 0, min(vdur, 75))
+            print(f"  corrected audio by {lag:+d} ms → now {lag2:+d} ms (r={r2:.2f})")
+    except Exception as e:
+        print("lip sync pre-check skipped:", e)
 SRC = "source.mov"
 run(["-i", SRC, "-vn", "-ac", "1", "-ar", "16000", "voice16k.wav"])
 

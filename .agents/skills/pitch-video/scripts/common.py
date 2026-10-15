@@ -60,6 +60,39 @@ def alpha_track(name, items, total, size, d="ov"):
     return f"{d}/{name}.mov"
 
 
+def lip_lag(path, start=0.0, dur=None):
+    """Mouth opening (face landmarks) vs voice energy on one file. Returns (lag_ms, r, face_share).
+    lag_ms: + = picture later than sound. r: correlation at the best lag (talking heads ~0.2-0.5; < 0.1 = no signal)."""
+    import numpy as np
+    import mediapipe as mp
+    from mediapipe.tasks.python import vision, BaseOptions
+    lm = vision.FaceLandmarker.create_from_options(vision.FaceLandmarkerOptions(
+        base_options=BaseOptions(model_asset_path=os.path.join(TB, "face_landmarker.task")), running_mode=vision.RunningMode.VIDEO))
+    Wd, Hd = 480, 320
+    cut = ["-ss", str(start)] + (["-t", str(dur)] if dur else [])
+    raw = subprocess.run(["ffmpeg", "-loglevel", "error", *cut, "-i", path, "-vf", f"fps={FPS},scale={Wd}:{Hd},format=rgb24",
+                          "-f", "rawvideo", "-"], capture_output=True).stdout
+    fr = np.frombuffer(raw, np.uint8).reshape(-1, Hd, Wd, 3)
+    op = np.full(len(fr), np.nan)
+    for i in range(len(fr)):
+        r = lm.detect_for_video(mp.Image(image_format=mp.ImageFormat.SRGB, data=np.ascontiguousarray(fr[i])), int(i * 1000 / FPS))
+        if r.face_landmarks:
+            p = r.face_landmarks[0]
+            op[i] = np.hypot(p[13].x - p[14].x, (p[13].y - p[14].y) * Hd / Wd) / (np.hypot(p[10].x - p[152].x, (p[10].y - p[152].y) * Hd / Wd) + 1e-6)
+    x = pcm(path, 48000, start, dur)
+    k = len(x) // 1600
+    rms = np.log(np.sqrt((x[:k * 1600].reshape(k, 1600) ** 2).mean(1)) + 1e-4)
+    m = min(len(op), len(rms))
+    if m < FPS or np.isnan(op[:m]).all():
+        return 0, 0.0, 0.0
+    o = np.nan_to_num(op[:m], nan=np.nanmean(op[:m]))
+    r_ = rms[:m]
+    o, r_ = (o - o.mean()) / (o.std() + 1e-9), (r_ - r_.mean()) / (r_.std() + 1e-9)
+    sc = {L: np.dot(o[max(0, L):m + min(0, L)], r_[max(0, -L):m - max(0, L)]) / m for L in range(-15, 16)}
+    L = max(sc, key=sc.get)
+    return round(L * 1000 / FPS), float(sc[L]), float(np.mean(~np.isnan(op[:m])))
+
+
 def run(args, **kw):
     return subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", *args], check=True, **kw)
 

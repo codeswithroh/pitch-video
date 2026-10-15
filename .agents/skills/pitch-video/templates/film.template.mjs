@@ -64,9 +64,11 @@ async function recorder(ctx, page, name) {
   };
 }
 
-async function newPage(seed = {}, { hidpi = false } = {}) {
+async function newPage(seed = {}, { hidpi = false, dark = false } = {}) {
   // hidpi: 2x pixels, for cinematic shots (cine.py magnifies UI up to 6x and needs the extra resolution)
-  const ctx = await browser.newContext({ viewport: { width: VW, height: VH }, deviceScaleFactor: hidpi ? 2 : 1 });
+  // dark: prefers-color-scheme dark (sites that follow the system theme look far better in cine shots)
+  const ctx = await browser.newContext({ viewport: { width: VW, height: VH }, deviceScaleFactor: hidpi ? 2 : 1,
+    colorScheme: dark ? "dark" : "light" });
   await ctx.addInitScript((s) => { for (const [k, v] of Object.entries(s)) localStorage.setItem(k, v); }, seed);
   const page = await ctx.newPage();
   page.on("pageerror", (e) => console.log("pageerror", e.message));

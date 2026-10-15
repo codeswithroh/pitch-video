@@ -12,7 +12,7 @@
 import os, re, subprocess, sys
 import numpy as np
 sys.path.insert(0, os.path.dirname(__file__))
-from common import TB, VOICE, load, run, probe, pcm
+from common import TB, VOICE, lip_lag, load, run, probe, pcm
 from selftest import run_selftest
 
 t = load("timeline.json")
@@ -50,39 +50,16 @@ print(f"[2] voice offset in final vs speaker track (ms, per 8 s window): {lags}"
 if len(bad) > max(1, len(lags) // 10):
     fails.append("voice drifts against the picture in the final mix")
 
-# 3. lip sync on the speaker track
+# 3. lip sync on the speaker track (from the first word: a cold open is black on the speaker track)
 try:
-    import mediapipe as mp
-    from mediapipe.tasks.python import vision, BaseOptions
-    lm = vision.FaceLandmarker.create_from_options(vision.FaceLandmarkerOptions(
-        base_options=BaseOptions(model_asset_path=os.path.join(TB, "face_landmarker.task")), running_mode=vision.RunningMode.VIDEO))
-    Wd, Hd = 480, 320
-    raw = subprocess.run(["ffmpeg", "-loglevel", "error", "-i", "speaker_cut.mov", "-vf", f"fps=30,scale={Wd}:{Hd},format=rgb24",
-                          "-f", "rawvideo", "-"], capture_output=True).stdout
-    fr = np.frombuffer(raw, np.uint8).reshape(-1, Hd, Wd, 3)
-    op = np.full(len(fr), np.nan)
-    for i in range(len(fr)):
-        r = lm.detect_for_video(mp.Image(image_format=mp.ImageFormat.SRGB, data=np.ascontiguousarray(fr[i])), int(i * 1000 / 30))
-        if r.face_landmarks:
-            p = r.face_landmarks[0]
-            op[i] = np.hypot(p[13].x - p[14].x, (p[13].y - p[14].y) * Hd / Wd) / (np.hypot(p[10].x - p[152].x, (p[10].y - p[152].y) * Hd / Wd) + 1e-6)
-    x = pcm("speaker_cut.mov", 48000)
-    k = len(x) // 1600
-    rms = np.log(np.sqrt((x[:k * 1600].reshape(k, 1600) ** 2).mean(1)) + 1e-4)
-    m = min(len(op), len(rms))
-    NI = round(t.get("intro", 0) * 30)  # the cold open is black on the speaker track: measure from the first word on
-    op, rms, m = op[NI:m], rms[NI:m], m - NI
-    o = np.nan_to_num(op, nan=np.nanmean(op)); r_ = rms
-    o, r_ = (o - o.mean()) / (o.std() + 1e-9), (r_ - r_.mean()) / (r_.std() + 1e-9)
-    sc = {L: np.dot(o[max(0, L):m + min(0, L)], r_[max(0, -L):m - max(0, L)]) / m for L in range(-15, 16)}
-    L = max(sc, key=sc.get)
-    print(f"[3] lip sync: mouth vs voice best lag {L * 33:+d} ms (r={sc[L]:.2f}; + = picture later). Face found in {100 * np.mean(~np.isnan(op)):.0f}% of frames")
-    if sc[L] < 0.1:
+    L_ms, r3, seen = lip_lag("speaker_cut.mov", start=t.get("intro", 0))
+    print(f"[3] lip sync: mouth vs voice best lag {L_ms:+d} ms (r={r3:.2f}; + = picture later). Face found in {100 * seen:.0f}% of frames")
+    if r3 < 0.1:
         # Mouth movement doesn't track the voice at any lag (a still image, face too small, mouth hidden):
-        # the offset above is noise, so this was not measured. Real talking heads score ~0.2-0.4.
-        skipped.append(f"lip sync inconclusive (mouth vs voice r={sc[L]:.2f}, expected > 0.1)")
-    elif sc[L] > 0.15 and not (-70 <= L * 33 <= 140):
-        fails.append(f"lip sync off by {L * 33} ms")
+        # the offset above is noise, so this was not measured. Real talking heads score ~0.2-0.5.
+        skipped.append(f"lip sync inconclusive (mouth vs voice r={r3:.2f}, expected > 0.1)")
+    elif r3 > 0.15 and not (-70 <= L_ms <= 140):
+        fails.append(f"lip sync off by {L_ms} ms")
 except Exception as e:
     print("[3] lip sync check SKIPPED:", e)
     skipped.append(f"lip sync not measured ({e})")

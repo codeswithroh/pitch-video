@@ -35,6 +35,8 @@ All scripts live in `scripts/`. Work in a fresh dir (scratchpad): `WORK=<dir>; c
 0a. **Rules first:** `$PY $S/rules.py show`, and follow every active rule. They are the user's lasting preferences from past videos; edit.py applies the numeric ones (speed, pauses, music level, accent) automatically.
 0. **Setup (once):** `bash $S/setup.sh` — checks ffmpeg/whisper-cli/node, builds the toolbox in `~/.cache/pitch-video`.
 1. **Prep:** `$PY $S/prep.py <video>` → `source.mov` (CFR 30, 48 kHz, A/V offset fixed), `captions_raw.json`, `sil.json`, `face.json`.
+   prep also measures lip sync on the raw take and corrects the audio if it's 50 ms+ off (webcams in low light and re-encodes often are); `--av-offset <ms>` forces a shift, `--no-av-fix` skips it.
+   **Choppy take** (check with ffprobe: real frame rate far below 30, freezes): first interpolate it, `ffmpeg -i take.mov -vf "minterpolate=fps=30:mi_mode=mci:mc_mode=aobmc:me_mode=bidir:vsbmc=1" -c:a copy take30.mov`, then prep take30.mov. Gaps over ~1 s still warp a little; tell the user more light fixes it at the source.
 2. **Captions:** `$PY $S/fix_captions.py narration.md` (or their script; optional). Read the diff it prints; hand-fix `captions.json`
    (`text` + `html`; use `<b>` for 1–4 key words per scene; fill any `(?)` lines). Never change start/end.
 2b. **Retakes:** `$PY $S/retakes.py` lists lines they stumbled on and repeated; check the list, then `--apply` (drops the earlier attempt).

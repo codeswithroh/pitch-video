@@ -15,6 +15,7 @@ mkdir work && cd work
 | 1 | `$PY $S/prep.py ~/Movies/take.mov` | your recording | `source.mov`, `captions_raw.json`, `sil.json`, `face.json` |
 | 2 | `$PY $S/fix_captions.py narration.md` | `captions_raw.json`, script | `captions.json` (then proofread it) |
 | 2b | `$PY $S/retakes.py [--apply]` | `captions.json` | `captions.json` without stumbled attempts |
+| 2c | `$PY $S/words.py` | `captions.json`, `voice16k.wav` | per-word onsets in `captions.json` (for 1-3 word captions) |
 | 3 | write `project.json`, then `$PY $S/edit.py` | `captions.json`, `project.json` | `timeline.json` |
 | 4 | `$PY $S/cut_speaker.py` | `source.mov`, `timeline.json` | `speaker_cut.mov` |
 | 5 | `node film.mjs` (from `templates/film.template.mjs`) | your app | `shots/<name>/`, `shots/events.json` |
@@ -34,6 +35,10 @@ mkdir work && cd work
 2. The voice in the final mix drifts more than 30 ms from the speaker track in more than 10% of 8-second windows.
 3. Mouth opening (MediaPipe face landmarks) and voice energy are offset outside −70…+140 ms. Natural speech sits around 0 to +100 ms because the mouth opens slightly before the sound.
 4. Any caption line has the voice less than 8 dB above the music and effects.
+5. True peak on the delivered file is above -1.0 dBTP.
+6. A word spoken clearly in the raw take is missing from a fresh transcription of the final audio, or any cut throws away audio more than 15 dB above the take's own room noise (a cut inside a word or its decay).
+7. Any cut has a one-frame black flash or pop.
+8. A caption sits over the mouth in the first 2.5 s or on the first frame of any face shot.
 
 It also prints integrated loudness (aim for −16 to −11 LUFS; YouTube normalizes to −14) and writes a 16-frame contact sheet to check by eye.
 

@@ -11,7 +11,7 @@ from common import TB, run, probe, save
 
 ap = argparse.ArgumentParser()
 ap.add_argument("input")
-ap.add_argument("--noise", type=float, default=-35)
+ap.add_argument("--noise", type=float, default=None, help="silence threshold in dB (default: 12 dB above this take's own noise floor)")
 ap.add_argument("--minsil", type=float, default=0.35)
 ap.add_argument("--av-offset", type=float, default=None, help="force an extra audio shift in ms (+ = later); skips auto-alignment")
 ap.add_argument("--no-av-fix", action="store_true", help="don't auto-correct a take whose lips and voice are out of sync")
@@ -63,6 +63,17 @@ SRC = "source.mov"
 run(["-i", SRC, "-vn", "-ac", "1", "-ar", "16000", "voice16k.wav"])
 
 # ── 2. Silences → speech chunks ──
+# The silence threshold comes from the take itself: a fixed -35 dB counts a quiet speaker's soft words and decays
+# as "silence", and the edit then cuts into them. 12 dB under the speaker's own speech level separates words
+# from breaths and room noise for quiet and loud takes alike.
+if a.noise is None:
+    import numpy as np
+    from common import pcm
+    _v = pcm("voice16k.wav", 16000)
+    _e = 20 * np.log10(np.sqrt(np.convolve(_v ** 2, np.ones(160) / 160, "valid"))[::160] + 1e-9)
+    _floor, _speech = np.percentile(_e, 10), np.percentile(_e, 90)
+    a.noise = float(min(-35, max(_floor + 12, _speech - 12)))   # breaths stay "silence", soft words don't
+    print(f"silence threshold {a.noise:.0f} dB (room noise {_floor:.0f} dB, speech {_speech:.0f} dB)")
 err = subprocess.run(["ffmpeg", "-hide_banner", "-i", "voice16k.wav", "-af", f"silencedetect=noise={a.noise}dB:d={a.minsil}",
                       "-f", "null", "-"], capture_output=True, text=True).stderr
 starts = [float(x) for x in re.findall(r"silence_start: ([\d.]+)", err)]

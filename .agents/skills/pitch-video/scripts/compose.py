@@ -9,7 +9,7 @@ AAC track whose timestamps said 114 s but held 105 s of samples (lips drifted, v
 """
 import os, sys
 sys.path.insert(0, os.path.dirname(__file__))
-from common import load, run, probe, audio_graph, alpha_track, FPS
+from common import load, run, probe, audio_graph, alpha_track, caption_items, FPS, music_gain
 
 t = load("timeline.json")
 P = load("project.json")
@@ -24,7 +24,7 @@ if load("project.json").get("layout") == "split":
 def track(name, items):
     alpha_track(name, items, TOTAL, (1920, 1080))
 
-track("trk_caps", [(c["start"], c["end"], f"ov/cap{i:03d}.png") for i, c in enumerate(t["caps"])])
+track("trk_caps", [(c["start"], c["end"], f"ov/cap{i:03d}.png") for i, c in enumerate(caption_items(t)[0])])
 cards = []
 for i, p in enumerate(t["plan"]):
     if p.get("title"):
@@ -57,7 +57,7 @@ INS = ["-i", "bg.mp4", "-i", "speaker_cut.mov", "-loop", "1", "-i", "ov/pipmask.
 run([*INS, "-filter_complex", ";".join(fc), "-map", "[vout]", "-an", "-frames:v", str(round(TOTAL * FPS)),
      "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-r", str(FPS), "out/_video.mp4"])
 run(["-i", "speaker_cut.mov", "-i", "music.wav", "-i", "sfx.wav", "-filter_complex",
-     audio_graph(P.get("music_gain", 0.55), P.get("sfx_gain", 0.85)),
+     audio_graph(music_gain(P), P.get("sfx_gain", 0.85)),
      "-map", "[aout]", "-t", f"{TOTAL:.4f}", "-c:a", "pcm_s16le", "-ar", "48000", "out/_audio.wav"])
 run(["-i", "out/_video.mp4", "-i", "out/_audio.wav", "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
      "-ar", "48000", "-movflags", "+faststart", OUT])

@@ -53,4 +53,4 @@ Rules for choosing:
    On screen: <what fills the top half: site/repo/anim>
    Gets them: <the action from their goal>
 ```
-Rank by (fits them) × (timely) × (easy to film). Recommend one. Then: "Want the script for #N?"
+Rank by (fits them) × (timely) × (easy to film) × (does the hook pass the 3-second test). Recommend one. Then: "Want the script for #N?"

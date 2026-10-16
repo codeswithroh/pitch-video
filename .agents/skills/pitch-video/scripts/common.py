@@ -36,6 +36,23 @@ def audio_graph(music_gain=0.55, sfx_gain=0.85):
     ])
 
 
+def music_gain(P):
+    """Music bed gain: project.json pins it, else sfx.py's measured level (mix.json), else the old default."""
+    if "music_gain" in P:
+        return P["music_gain"]
+    try:
+        return json.load(open("mix.json"))["music_gain"]
+    except (OSError, ValueError, KeyError):
+        return 0.55
+
+
+def caption_items(t):
+    """The captions to draw: 1-3 word chunks when the timeline has them, otherwise whole lines."""
+    if (t.get("captions") or {}).get("mode") == "words" and t.get("chunks"):
+        return t["chunks"], True
+    return t["caps"], False
+
+
 def alpha_track(name, items, total, size, d="ov"):
     """Bake timed transparent PNGs [(start, end, png)] into one qtrle alpha track <d>/<name>.mov.
     Via the concat demuxer: feeding dozens of looped PNGs into one filter graph is 10-50x slower."""

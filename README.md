@@ -225,6 +225,8 @@ Issues and PRs are welcome, especially new SFX, caption themes, vertical output 
 
 The cinematic shot look (oblique hero shots of UI in a black void) follows Wei Ho's [cinematic-shot](https://github.com/1weiho/cinematic-shot) skill. `cine.py` is an independent implementation of that look.
 
+The reel defaults (pacing without speed-up, 1-3 word captions kept off the mouth, the soft sound palette, the first-3-seconds test, and the final-audio word and cut-frame checks) are adapted from Nate Herk's editing playbook in [herk-edit-kit](https://github.com/nateherkai/herk-edit-kit) (MIT), measured on his top reels. See `references/house-style.md`.
+
 ## License
 
 [MIT](LICENSE). The Whisper and MediaPipe models are downloaded from their upstream sources and keep their own licenses.

@@ -44,7 +44,9 @@ const shot = async (file, html) => {
 
 // The face bubble is visible on every shot except full-frame speaker, end card, or pip:false.
 const pipOn = (s) => t.plan.some((x) => s >= x.start - 0.05 && s < x.end && !(x.speaker || x.end_card || x.pip === false));
-if (!SPLIT) for (const [i, c] of t.caps.entries()) await shot(`cap${String(i).padStart(3, "0")}.png`, `<div class="cap ${pipOn(c.start) ? "pip" : ""}">${c.html}</div>`);
+const WORDS = (t.captions || {}).mode === "words" && (t.chunks || []).length > 0;
+const CAPS = WORDS ? t.chunks : t.caps;
+if (!SPLIT) for (const [i, c] of CAPS.entries()) await shot(`cap${String(i).padStart(3, "0")}.png`, `<div class="cap ${WORDS ? "words" : ""} ${pipOn(c.start) ? "pip" : ""}">${c.html}</div>`);
 for (const s of t.scenes) if (s.chip) await shot(`chip${s.n}.png`, `<div class="chip"><span class="n">${s.n}</span>${s.title}</div>`);
 for (const [i, x] of t.plan.entries()) {
   if (x.title) await shot(`title${i}.png`, `<div class="big"><h1>${x.title}</h1>${x.subtitle ? `<p>${x.subtitle}</p>` : ""}</div>`);

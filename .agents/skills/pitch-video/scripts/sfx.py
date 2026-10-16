@@ -98,6 +98,16 @@ def typing(d=1.5):
 def swell(d=2.2):
     x = T(d); pad = sum(np.sin(2 * np.pi * f * x) for f in (523.25, 659.25, 783.99, 1046.5)) * 0.07
     return env(pad * np.sin(np.pi * np.minimum(x / d, 1)), 0.01, 0.2)
+def tap():
+    """Damped soft tap: a logo or card landing (the soft palette's main contact sound)."""
+    x = T(0.18)
+    return env(np.sin(2 * np.pi * 180 * x) * np.exp(-34 * x) * 0.55 + lp(noise(0.18), 1200) * np.exp(-60 * x) * 0.35, 0.001, 0.04)
+def air(d=0.5):
+    """Soft air move: a real spatial change, much gentler than whoosh."""
+    x = T(d); return lp(hp(noise(d), 600), 2200) * np.sin(np.pi * np.minimum(x / d, 1)) ** 3 * 0.35
+def warm():
+    """One short warm tone: a check or a payoff."""
+    return chime((523.25, 783.99), 0.05, 0.7, 0.14)
 def sting():
     x = T(1.6)
     return env(np.sin(2 * np.pi * 46 * x) * np.exp(-2.2 * x) * 0.8 + (np.sin(2 * np.pi * 233 * x) + np.sin(2 * np.pi * 247 * x)) * 0.12 * np.exp(-2 * x)
@@ -133,6 +143,12 @@ def rec_to_edit(rec, ts):
     sys.exit(f"sfx: rec {rec!r} time {ts} is not inside any shot's fit range")
 
 A = P.get("sfx_auto", {})
+# Sound palette. "soft" (default for the reel pace) follows the house-reel lesson that trailer booms, risers and a
+# whoosh on every cut sound cheap: sound follows VISIBLE actions only (a soft air move on a real layout change,
+# a damped tap when a card or the end card lands, a warm tone on a payoff) and many cuts stay silent.
+SOFT = P.get("sound", "soft" if t.get("pace") == "reel" else "cinematic") == "soft"
+if SOFT:
+    A = {"whoosh": False, "hook": False, "title": False, "card": False, "end": False, "intro": False, **A}
 INTRO = t.get("intro", 0)
 if INTRO and A.get("intro", True):
     place(max(0, INTRO - 1.8), "swell", 0.5)
@@ -155,6 +171,18 @@ for p in plan:
 if A.get("end", True) and any(p.get("end_card") for p in plan):
     end_hit = caps[-1]["end"] + 0.1  # strictly after the last word
     place(end_hit, "boom", 0.85); place(end_hit + 0.1, "swell", 1.0)
+
+if SOFT:
+    prev = None
+    for p in plan:
+        kind = "speaker" if p.get("speaker") else "visual"
+        if prev is not None and kind != prev and p["start"] > 0.5:
+            place(p["start"] - 0.12, "air", 0.35)                    # a real layout change: speaker <-> visual
+        prev = kind
+        if p.get("title") or p.get("card"):
+            place(p["start"] + (p.get("card_delay", 0.4) if p.get("card") else 0.05), "tap", 0.6)
+    if any(p.get("end_card") for p in plan):
+        place(caps[-1]["end"] + 0.1, "tap", 0.7); place(caps[-1]["end"] + 0.15, "warm", 0.6)
 
 for c in P.get("sfx", []):
     if "phrase" in c:
@@ -201,4 +229,14 @@ elif M == "synth":
 else:  # a user-supplied track: loop/trim, normalize low, fade
     run(["-stream_loop", "-1", "-i", M, "-t", str(TOTAL + 1), "-af",
          f"aresample={SR},loudnorm=I=-30:TP=-6,{MDELAY}afade=t=in:d=2,afade=t=out:st={TOTAL - 4}:d=4", "-ac", "2", "-c:a", "pcm_s16le", "music.wav"])
+# Bed level: about 12 dB under the voice before ducking (house range 9-14 dB). The voice chain normalizes to
+# -14 LUFS, so measure the bed and write the gain compose/verify will use, unless the project pins music_gain.
+if M != "none" and "music_gain" not in P:
+    err = subprocess.run(["ffmpeg", "-hide_banner", "-i", "music.wav", "-af", "ebur128", "-f", "null", "-"], capture_output=True, text=True).stderr
+    import re as _re
+    found = _re.findall(r"I:\s+(-?[\d.]+) LUFS", err)
+    if found and float(found[-1]) > -70:
+        g = round(min(1.5, max(0.05, 10 ** ((-14 - P.get("bed_under_voice_db", 12) - float(found[-1])) / 20))), 3)
+        json.dump({"music_gain": g}, open("mix.json", "w"))
+        print(f"music bed {float(found[-1]):.1f} LUFS → gain {g} (≈{P.get('bed_under_voice_db', 12)} dB under the voice)")
 print("music.wav", M)

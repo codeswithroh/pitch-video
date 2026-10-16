@@ -13,6 +13,9 @@
     padding: 14px 28px 16px; background: var(--panel); border: 2px solid rgba(255,255,255,0.08); border-radius: 14px;
     box-shadow: 0 10px 40px rgba(0,0,0,.45); font: 700 44px/1.18 var(--body), sans-serif; color: var(--ink); text-align: center; }
   .cap b { color: var(--accent); font-weight: 800; }
+  /* Word-chunk captions (reel style): all caps, one dark box with a thin light edge, sized to the words. */
+  .cap.words { max-width: 1100px; text-transform: uppercase; letter-spacing: .5px; font-weight: 900; font-size: 56px;
+    padding: 10px 24px 12px; background: rgba(8,8,12,.88); border: 2px solid rgba(255,255,255,.22); }
   .cap.pip { transform: translateX(calc(-50% - 210px)); max-width: 1180px; }
   /* Scene chip, top-left. */
   .chip { position: absolute; left: 48px; top: 44px; display: flex; align-items: center; gap: 14px; padding: 10px 18px 10px 12px;

@@ -174,13 +174,13 @@ for sc in scenes:
 layout = meta.get("layout", "split")
 spoken = [x[1] for sc in scenes for x in sc["items"] if x[0] == "say"]
 nwords = sum(len(words(s)) for s in spoken)
-speed = float(meta.get("speed", 1.1))
+speed = float(meta.get("speed", 1.0 if meta.get("layout", "split") == "split" else 1.1))
 est = nwords / WPS / speed + sum(c["len"] for c in intro)
 
 project = {
     "title": meta.get("title", out_scenes[0]["title"] if out_scenes else "Video"),
     "layout": layout,
-    "speed": speed,
+    **({"speed": speed} if "speed" in meta or layout != "split" else {}),
     "output": meta.get("output", "out/video.mp4"),
     "theme": {"accent": meta.get("accent", "#ffe040"), "head": meta.get("font", "Inter"), "body": meta.get("font", "Inter")},
     "music": meta.get("music", "synth"),

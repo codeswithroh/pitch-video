@@ -16,6 +16,13 @@ so after they record, the video assembles without guessing.
 | 90 s | 225–245 |
 | 2 min | 300–330 |
 
+## Before writing: the first 3 seconds
+
+Answer "in the first 3 seconds, is someone convinced they need to watch until the end?" Draft three different
+openings (problem first, result glimpse, recognition first) that lead into the same body, pick one, and write
+down why: the benefit, the open question, what's on screen by second three, and where it pays off. Script the hook
+before recording; a take with no hook caps the edit no matter how well it's cut. See `references/house-style.md`.
+
 ## Writing rules
 
 - **First line is the hook.** A specific claim or a number, said in under 3 seconds. Not "Hey guys", not their name.
@@ -60,7 +67,9 @@ Link is in the comments. Try it on your messiest repo.
 Cues go on their own line and apply from the next spoken line:
 `[face]` · `[rec <name>: what to film]` · `[anim <name>: what it explains]` · `[cine <name> <scale>: subject]` · `[image <path>]` · `[title TEXT | subtitle]` · `[card <name>]` · `[zoom tl|tr|bl|br|c]` · `[end]`
 
-For walkthroughs and overviews, open with a silent cinematic cold open (see `references/cinematic.md`):
+For 16:9 walkthroughs and launch films, open with a silent cinematic cold open (see `references/cinematic.md`).
+For reels, don't: speech must start in the first frames, so put the `[cine ...]` cues on the hook's lines instead
+and they play on the top half under your voice.
 ```
 ## Cold open
 [cine composer macro: the prompt box with a half-typed request]

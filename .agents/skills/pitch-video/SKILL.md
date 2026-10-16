@@ -12,6 +12,12 @@ Start where the user is:
 - **No idea yet** → Stage A (ideas). **Has an idea, no script** → Stage B (script). **Has a recording** → the pipeline (step 0a on).
 - The person only ever does two things: pick an idea and read the script once on camera. Everything else is yours.
 
+## House style
+For split / reel videos read `references/house-style.md` first: the first-3-seconds test, pacing (no dead air, no
+speed-up, speech in the first frames), 1-3 word captions off the mouth, B-roll order, and the soft sound palette.
+Defaults follow from the layout (`split` → `"pace": "reel"`, `"captions": {"mode": "words"}`, `"sound": "soft"`;
+`pitch` → classic pacing, line captions, cinematic sound); any of them can be set in project.json.
+
 ## Stage A: ideas
 Read `references/ideas.md`. Profile the person from what you can already see (repo, links, posts) before asking anything, show them a 4-line profile, then 5 ideas in the given format, ranked, with one recommended. Ideas must fit *them*, be timely, and have something real to put on screen.
 
@@ -39,6 +45,7 @@ All scripts live in `scripts/`. Work in a fresh dir (scratchpad): `WORK=<dir>; c
    **Choppy take** (check with ffprobe: real frame rate far below 30, freezes): first interpolate it, `ffmpeg -i take.mov -vf "minterpolate=fps=60:mi_mode=mci:mc_mode=aobmc:me_mode=bidir:me=epzs:search_param=64:vsbmc=1:scd=none,tmix=frames=3:weights='1 2 1',fps=30" -c:a copy take30.mov`, then prep take30.mov. `scd=none` stops the hold-then-jump on big gaps, the wider search follows head moves, and the 60→30 blend adds the motion blur a real camera would have (measured on a 10 fps take: no jumps left, jerkiness 0.15 → 0.09). Frames the camera never captured can't be invented: tell the user that more light in front of them fixes it at the source.
 2. **Captions:** `$PY $S/fix_captions.py narration.md` (or their script; optional). Read the diff it prints; hand-fix `captions.json`
    (`text` + `html`; use `<b>` for 1–4 key words per scene; fill any `(?)` lines). Never change start/end.
+2c. **Word timing:** `$PY $S/words.py` (after captions and retakes are final) → every caption word gets its own onset, for 1-3 word chunks. Re-run it whenever captions.json text changes.
 2b. **Retakes:** `$PY $S/retakes.py` lists lines they stumbled on and repeated; check the list, then `--apply` (drops the earlier attempt).
 3. **Plan:** `project.json` came from script_plan.py in Stage B; otherwise write it (schema below). Anchor every scene and shot to a spoken phrase. Then `$PY $S/edit.py`.
    Re-run edit.py after any change; it prints the full timeline — sanity check shot lengths against the lines.
@@ -54,7 +61,7 @@ All scripts live in `scripts/`. Work in a fresh dir (scratchpad): `WORK=<dir>; c
 9. **Compose:** pitch layout: `$PY $S/compose.py`. Split layout: `$PY $S/compose_vertical.py` (writes the 9:16 video and its own audio; compose.py refuses split).
 9b. **Vertical cut of a pitch video (optional):** `$PY $S/compose_vertical.py` → `out/<name>_vertical.mp4` (16:9 picture on top, face below; reuses the verified audio).
 9c. **Posts:** `$PY $S/draft_posts.py` → `out/posts.md`: X thread, LinkedIn, Product Hunt, Reddit and Show HN drafts built from what was actually said. Polish them with the user; never post unreviewed.
-10. **Verify:** `$PY $S/verify.py` — must print `RESULT: PASS`. Check [0] is a pipeline self-test (synthetic flash+click clip through the same cut, speed-up, mix and mux); if it fails, the pipeline itself is out of sync, so fix that before touching the footage. Run it alone with `$PY $S/selftest.py`. `UNVERIFIED` means a check could not run or was inconclusive (no face found, or mouth movement doesn't track the voice: a still image, a tiny or hidden face): fix the cause or tell the user plainly; never call it passed. Also Read `out/contact.png`. Fix and re-run from the
+10. **Verify:** `$PY $S/verify.py` — must print `RESULT: PASS`. Beyond sync and loudness it measures true peak on the delivered file, re-transcribes the final audio and fails if a word near a cut is missing, scans every cut for one-frame flashes or pops, and checks the first 2.5 s and every face shot for a caption over the mouth. Check [0] is a pipeline self-test (synthetic flash+click clip through the same cut, speed-up, mix and mux); if it fails, the pipeline itself is out of sync, so fix that before touching the footage. Run it alone with `$PY $S/selftest.py`. `UNVERIFIED` means a check could not run or was inconclusive (no face found, or mouth movement doesn't track the voice: a still image, a tiny or hidden face): fix the cause or tell the user plainly; never call it passed. Also Read `out/contact.png`. Fix and re-run from the
     earliest affected step. Only then send the file (state it was checked by measurement, not by ear).
 
 ## project.json

@@ -1,6 +1,6 @@
 ---
 name: pitch-video
-description: Make any talking video, from idea to verified file, with optional cinematic cold opens of the real UI. Suggests video ideas from who the person is (profile, audience, goal), writes the script with the edit cued into it and a teleprompter, then turns their single take into a finished video - product walkthroughs of new AI tools, reviews, tutorials, build-in-public updates, hot takes, launch and pitch/demo videos. Two layouts - split (9:16, product footage and motion graphics on the top half, the speaker on the bottom) and pitch (16:9 with a face bubble). Pause-trimmed, retakes removed, lip-synced, captions, explainer animations, SFX and ducked music, checked by measurement. Use when someone wants a video idea, a script, or uploads/points to a recording of themselves talking.
+description: Make any talking video, from idea to verified file, with optional cinematic cold opens of the real UI. Suggests video ideas from who the person is (profile, audience, goal), writes the script with the edit cued into it, then turns their single take into a finished video - product walkthroughs of new AI tools, reviews, tutorials, build-in-public updates, hot takes, launch and pitch/demo videos. Two layouts - split (9:16, product footage and motion graphics on the top half, the speaker on the bottom) and pitch (16:9 with a face bubble). Pause-trimmed, retakes removed, lip-synced, captions, explainer animations, SFX and ducked music, checked by measurement. Use when someone wants a video idea, a script, or uploads/points to a recording of themselves talking.
 ---
 
 # pitch-video
@@ -23,7 +23,7 @@ Read `references/ideas.md`. Profile the person from what you can already see (re
 
 ## Stage B: script
 Read `references/scripts.md`. Write `script.md` with front matter (layout, accent, end card) and cues (`[face]`, `[rec name: what to film]`, `[anim name: what it explains]`, `[title …]`, `[end]` …) on their own lines before the line they cover. Show them the plain script, revise until it sounds like them, then:
-`$PY $S/script_plan.py script.md` → `project.json` (scenes and shots already anchored to the words), `narration.md`, `shotlist.md`, `teleprompter.html`. Fix any WARN. Send them the teleprompter + recording tips from `references/scripts.md`, and have them record a 5 s test first: `$PY $S/check_take.py test.mov` must say READY (real 30 fps, lit face, framing, sound) before the real take.
+`$PY $S/script_plan.py script.md` → `project.json` (scenes and shots already anchored to the words), `narration.md`, `shotlist.md`. Fix any WARN. Send them the plain script + recording tips from `references/scripts.md`, and have them record a 5 s test first: `$PY $S/check_take.py test.mov` must say READY (real 30 fps, lit face, framing, sound) before the real take.
 While they record, you can already film every `rec` and build every `anim` on the shot list (step 5); times get filled in after.
 
 ## Cinematic shots

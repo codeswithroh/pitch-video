@@ -1,6 +1,6 @@
 # Stage B: writing the script they'll read
 
-The script is written for one take, read off a teleprompter, and it already contains the edit: every visual
+The script is written for one take, and it already contains the edit: every visual
 is a cue in the script, anchored to the line it appears on. `script_plan.py` turns it into `project.json`,
 so after they record, the video assembles without guessing.
 
@@ -83,8 +83,8 @@ Shape that works for split videos: open on `[face]` for the hook (trust), cut to
 
 1. Show them the script as plain text (no cues) plus a one-line summary of what will be on screen.
 2. Revise until they'd say it the same way out loud.
-3. Run `$PY $S/script_plan.py script.md`. It writes `project.json`, `narration.md`, `shotlist.md` and `teleprompter.html`, and prints the estimated length. Fix any WARN lines.
-4. Send them `teleprompter.html` with the recording tips below.
+3. Run `$PY $S/script_plan.py script.md`. It writes `project.json`, `narration.md` and `shotlist.md`, and prints the estimated length. Fix any WARN lines.
+4. Send them the plain script with the recording tips below.
 
 ## Recording tips to send
 
@@ -95,7 +95,6 @@ real take once it says READY: a choppy or dark take can be smoothed, but never m
 
 - Light IN FRONT of you (a lamp or window facing you, at eye level), never only behind you. Dim faces make webcams drop to ~10 fps, which no edit can fully fix.
 - Phone (or iPhone as Continuity Camera) beats a laptop webcam. Close heavy apps while recording. Quiet room; earbuds mic is fine.
-- Open `teleprompter.html` on the screen behind the camera (or on a laptop just under the lens). Space starts it, arrows change speed.
 - Record in one take. If you stumble, pause, then repeat the whole sentence; the edit removes the pause and the mistake.
 - Leave a second of silence before the first line and after the last one.
 - **Split layout:** frame yourself head and shoulders, centered, with space above your head. You'll be on the bottom half.

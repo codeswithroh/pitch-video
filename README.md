@@ -43,7 +43,7 @@ Everything runs locally with ffmpeg, whisper.cpp and Playwright. No uploads, no 
 Ask your agent for ideas, get a script, read it once, get the video.
 
 1. **Ideas from who you are.** "What video should I make?" Your agent reads your repo, links and recent posts, writes a 4-line profile, then pitches 5 ideas that fit you: a walkthrough of a tool that launched this week, a build-in-public update, a hot take, a tutorial, a comparison.
-2. **A script with the edit already in it.** Pick one and it writes the script in your voice, with every visual cued to the line it appears on (`[rec site: scroll to the pricing table]`, `[anim lanes: eight agents merging into one diff]`), plus a teleprompter page you read from.
+2. **A script with the edit already in it.** Pick one and it writes the script in your voice, with every visual cued to the line it appears on (`[rec site: scroll to the pricing table]`, `[anim lanes: eight agents merging into one diff]`).
 3. **One take.** Read it on your webcam or phone. Stumble? Pause and repeat the sentence; the stumbled attempt is cut.
 4. **The video.** Split layout (9:16): the product, site footage and motion graphics on the top half, you on the bottom half, captions on the seam. Or the 16:9 pitch layout with a face bubble. Same sync and loudness checks either way.
 

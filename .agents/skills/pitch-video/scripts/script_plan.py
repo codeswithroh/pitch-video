@@ -42,9 +42,8 @@ Writes:
     project.json        scenes and shots anchored to the first words of each spoken line (edit.py resolves them)
     narration.md        spoken lines only, for fix_captions.py
     shotlist.md         every rec/anim to make, the line it covers and roughly how long it is on screen
-    teleprompter.html   open it, press space, read. Arrow keys change speed, M mirrors for a glass prompter.
 """
-import html, json, os, re, sys
+import json, os, re, sys
 
 WPS = 2.6  # spoken words per second at a natural pace (~155 wpm)
 
@@ -217,41 +216,9 @@ for kind, name, desc, text in shotlist:
     sl.append(f"- **{kind} `{name}`** ({secs:.0f}s+): {desc or '(describe it)'}\n  covers: \"{plain(text)}\"")
 open("shotlist.md", "w").write("\n".join(sl) + "\n")
 
-# ── teleprompter.html ──
-blocks = []
-for sc in scenes:
-    lines = [x[1] for x in sc["items"] if x[0] == "say"]
-    if not lines:
-        continue
-    body = " ".join(html.escape(l) for l in lines)
-    body = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", body)
-    blocks.append(f"<section><h2>{html.escape(sc['title'])}</h2><p>{body}</p></section>")
-open("teleprompter.html", "w").write(f"""<!doctype html><html><head><meta charset="utf-8"><title>Teleprompter: {html.escape(project['title'])}</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<style>
-:root{{--accent:{project['theme']['accent']}}}
-html,body{{margin:0;background:#000;color:#f4f4f4;font:600 clamp(34px,5.4vw,64px)/1.45 -apple-system,Inter,system-ui,sans-serif}}
-#roll{{padding:45vh 9vw 80vh;max-width:1100px;margin:0 auto}}
-section{{margin-bottom:1.4em}} h2{{font-size:.38em;letter-spacing:.14em;text-transform:uppercase;color:#777;margin:0 0 .4em}}
-p{{margin:0}} b{{color:var(--accent)}}
-.mirror #roll{{transform:scaleX(-1)}}
-#line{{position:fixed;left:0;right:0;top:42vh;height:0;border-top:2px solid rgba(255,255,255,.12);pointer-events:none}}
-#hud{{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);font:500 14px system-ui;color:#888;background:#111;padding:8px 14px;border-radius:8px}}
-</style></head><body>
-<div id="line"></div><div id="roll">{''.join(blocks)}<section><h2>Done</h2><p>Stop recording. Send the file to your agent.</p></section></div>
-<div id="hud">space: start/pause · ↑↓ speed · M: mirror · R: restart · <span id="sp"></span></div>
-<script>
-let on=false,v=1.0,last=0;const sp=document.getElementById('sp');const show=()=>sp.textContent='speed '+v.toFixed(1)+'x';show();
-function tick(t){{if(on){{window.scrollBy(0,(t-last)*0.045*v)}}last=t;requestAnimationFrame(tick)}}requestAnimationFrame(tick);
-addEventListener('keydown',e=>{{if(e.code==='Space'){{on=!on;e.preventDefault()}}if(e.key==='ArrowUp'){{v=Math.min(3,v+.1);show();e.preventDefault()}}
-if(e.key==='ArrowDown'){{v=Math.max(.3,v-.1);show();e.preventDefault()}}if(e.key==='m'||e.key==='M')document.body.classList.toggle('mirror');
-if(e.key==='r'||e.key==='R')scrollTo(0,0)}});
-addEventListener('click',()=>on=!on);
-</script></body></html>""")
-
 # ── report ──
 print(f"{len(out_scenes)} scenes, {sum(len(s['shots']) for s in out_scenes)} shots, {nwords} words ≈ {est:.0f}s after the {speed}x speed-up")
-print("wrote narration.md, shotlist.md, teleprompter.html")
+print("wrote narration.md, shotlist.md")
 if layout == "split":
     face_only = sum(1 for s in out_scenes for sh in s["shots"] if sh.get("speaker"))
     if face_only > max(2, len(out_scenes) // 2):

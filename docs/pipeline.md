@@ -11,7 +11,7 @@ mkdir work && cd work
 | # | Command | Reads | Writes |
 | --- | --- | --- | --- |
 | 0 | `bash $S/setup.sh` (once per machine) | | `~/.cache/pitch-video/` toolbox |
-| B | `$PY $S/script_plan.py script.md` (before recording) | cued script | `project.json`, `narration.md`, `shotlist.md`, `teleprompter.html` |
+| B | `$PY $S/script_plan.py script.md` (before recording) | cued script | `project.json`, `narration.md`, `shotlist.md` |
 | 1 | `$PY $S/prep.py ~/Movies/take.mov` | your recording | `source.mov`, `captions_raw.json`, `sil.json`, `face.json` |
 | 2 | `$PY $S/fix_captions.py narration.md` | `captions_raw.json`, script | `captions.json` (then proofread it) |
 | 2b | `$PY $S/retakes.py [--apply]` | `captions.json` | `captions.json` without stumbled attempts |

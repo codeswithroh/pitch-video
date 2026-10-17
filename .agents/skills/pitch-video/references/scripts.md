@@ -95,6 +95,9 @@ real take once it says READY: a choppy or dark take can be smoothed, but never m
 
 - Light IN FRONT of you (a lamp or window facing you, at eye level), never only behind you. Dim faces make webcams drop to ~10 fps, which no edit can fully fix.
 - Phone (or iPhone as Continuity Camera) beats a laptop webcam. Close heavy apps while recording. Quiet room; earbuds mic is fine.
+- **Clap once** right after you hit record, hands in frame, then pause a second before the first line. The clap's
+  sound and the frame where your hands meet sync picture and voice exactly (it's how film crews do it); without
+  it, sync falls back to a mouth-movement estimate that some faces and lighting throw off by 200+ ms.
 - Record in one take. If you stumble, pause, then repeat the whole sentence; the edit removes the pause and the mistake.
 - Leave a second of silence before the first line and after the last one.
 - **Split layout:** frame yourself head and shoulders, centered, with space above your head. You'll be on the bottom half.

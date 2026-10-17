@@ -77,6 +77,56 @@ def alpha_track(name, items, total, size, d="ov"):
     return f"{d}/{name}.mov"
 
 
+def find_clap(path, search=15.0):
+    """A sync clap near the start: the sound of the clap and the frame where the hands meet.
+
+    Returns (audio_t, picture_t, info) in seconds on the file's own clock, or None if there's no clear clap.
+    Sound: the sharpest broadband transient in the first `search` seconds, at least 35 dB above the 200 ms before
+    it and decaying within 150 ms (a word doesn't do that). Picture: frame-to-frame motion around it peaks as the
+    hands swing in and collapses when they meet; contact = the last fast frame before the collapse.
+    A physical event both camera and mic recorded, so it beats any estimate from mouth movement."""
+    import numpy as np
+    x = pcm(path, 48000, 0, search)
+    if len(x) < 48000:
+        return None
+    hp = x - np.convolve(x, np.ones(24) / 24, "same")          # claps are broadband; voice energy sits low
+    e = 20 * np.log10(np.sqrt(np.convolve(hp ** 2, np.ones(48) / 48, "same"))[::48] + 1e-9)  # 1 ms frames
+    best = None
+    for i in np.argsort(e)[::-1][:400]:
+        if i < 200 or i + 150 >= len(e):
+            continue
+        rise = e[i] - np.median(e[i - 200:i - 20])
+        decay = e[i] - e[i + 150]
+        if rise >= 35 and decay >= 20:
+            best = (i, rise, decay)
+            break
+    if not best:
+        return None
+    ta = best[0] / 1000
+    W, H = 160, 90
+    a0 = max(0.0, ta - 0.8)
+    raw = subprocess.run(["ffmpeg", "-loglevel", "error", "-ss", f"{a0:.3f}", "-t", "1.6", "-i", path, "-vf", f"fps={FPS},scale={W}:{H},format=gray",
+                          "-f", "rawvideo", "-"], capture_output=True).stdout
+    fr = np.frombuffer(raw, np.uint8)[: len(raw) // (W * H) * W * H].reshape(-1, H, W).astype(np.float32)
+    if len(fr) < 10:
+        return None
+    d = np.abs(np.diff(fr, axis=0)).mean((1, 2))                # d[k]: motion from frame k to k+1
+    moving = d[d > 0.05]
+    if len(moving) < 0.7 * len(d):
+        return None                                              # repeated frames (a choppy camera): the picture can't time a clap
+    base = float(np.median(moving))
+    pk = int(np.argmax(d))
+    if base < 0.2 or d[pk] < 2.5 * base:
+        return None                                              # no hand movement big enough to be the clap
+    k = pk
+    while k + 1 < len(d) and d[k + 1] >= 0.5 * d[pk]:
+        k += 1
+    tv = a0 + (k + 1) / FPS                                      # the frame the fast motion arrives at = hands meet
+    if abs(ta - tv) > 0.5:
+        return None
+    return ta, tv, {"rise_db": round(float(best[1])), "motion_x": round(float(d[pk] / base), 1)}
+
+
 def lip_lag(path, start=0.0, dur=None):
     """Mouth opening (face landmarks) vs voice energy on one file. Returns (lag_ms, r, face_share).
     lag_ms: + = picture later than sound. r: correlation at the best lag (talking heads ~0.2-0.5; < 0.1 = no signal)."""

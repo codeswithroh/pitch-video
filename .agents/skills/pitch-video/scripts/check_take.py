@@ -95,6 +95,18 @@ else:
     if speech - noise < 20:
         bad.append("noisy room: turn off fans/AC, close the window, or use earbuds' mic")
 
+# sync clap (on by default: prep uses it to line up picture and voice exactly)
+try:
+    from common import find_clap
+    c = find_clap(f)
+    if c:
+        print(f"sync clap: found at {c[1]:.2f}s (sound {1000 * (c[0] - c[1]):+.0f} ms from the hands meeting; prep will correct it)")
+        ok.append("sync clap found")
+    else:
+        bad.append("no sync clap: clap once, hands in frame, right after you hit record (it syncs your voice to your lips exactly)")
+except Exception:
+    pass
+
 # sync (only if they talked)
 try:
     lag, r, _ = lip_lag(f, 0, None)

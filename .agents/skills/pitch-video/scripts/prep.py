@@ -14,7 +14,7 @@ ap.add_argument("input")
 ap.add_argument("--noise", type=float, default=None, help="silence threshold in dB (default: 12 dB above this take's own noise floor)")
 ap.add_argument("--minsil", type=float, default=0.35)
 ap.add_argument("--av-offset", type=float, default=None, help="force an extra audio shift in ms (+ = later); skips auto-alignment")
-ap.add_argument("--no-av-fix", action="store_true", help="don't auto-correct a take whose lips and voice are out of sync")
+ap.add_argument("--no-av-fix", action="store_true", help="don't auto-correct sync (clap or lips) at all")
 a = ap.parse_args()
 
 # ── 1. Normalize with explicit A/V alignment ──
@@ -45,9 +45,36 @@ if a.av_offset is not None:
     print(f"forced extra audio shift {a.av_offset:+.0f} ms")
 normalize(off)
 # Container timestamps aren't the whole story: webcams in low light, screen recorders under load and re-encodes
-# (lost AAC priming, frame interpolation) can put the voice 100-200 ms off the lips. Measure it on the picture
-# itself and correct the take before anything is transcribed, so every later step inherits a synced source.
+# (lost AAC priming, frame interpolation) can put the voice 100-250 ms off the lips. Correct the take before
+# anything is transcribed, so every later step inherits a synced source.
+# 1) A sync clap is ground truth (on by default; the recording tips ask for one): its sound and the frame where
+#    the hands meet must be the same moment. 2) Without a clap, fall back to mouth movement vs voice energy,
+#    which can be fooled by a take where the mouth barely moves.
+clapped = False
 if a.av_offset is None and not a.no_av_fix:
+    try:
+        from common import find_clap, lip_lag
+        c = find_clap("source.mov")
+        if c:
+            ta, tv, info = c
+            d = ta - tv                                   # + = sound after the picture
+            c2 = c
+            print(f"sync clap: sound {ta:.3f}s, hands meet {tv:.3f}s ({d * 1000:+.0f} ms; {info})")
+            if abs(d) >= 1 / 60:
+                off -= d
+                normalize(off)
+                c2 = find_clap("source.mov")
+                print(f"  corrected audio by {-d * 1000:+.0f} ms → clap now {(c2[0] - c2[1]) * 1000:+.0f} ms" if c2 else "  corrected")
+            clapped = True
+            lag, r, _ = lip_lag("source.mov", 0, min(vdur, 75))
+            print(f"  lip check after clap sync: {lag:+d} ms (r={r:.2f}), for information")
+            json.dump({"method": "clap", "clap_ms": round((c2[0] - c2[1]) * 1000) if c2 else 0, "lip_ms": lag, "lip_r": round(r, 2)},
+                      open("sync.json", "w"))
+        else:
+            print("no sync clap found: aligning from mouth movement instead (ask for a clap next time)")
+    except Exception as e:
+        print("clap sync skipped:", e)
+if a.av_offset is None and not a.no_av_fix and not clapped:
     try:
         from common import lip_lag
         lag, r, seen = lip_lag("source.mov", 0, min(vdur, 75))
@@ -57,6 +84,7 @@ if a.av_offset is None and not a.no_av_fix:
             normalize(off)
             lag2, r2, _ = lip_lag("source.mov", 0, min(vdur, 75))
             print(f"  corrected audio by {lag:+d} ms → now {lag2:+d} ms (r={r2:.2f})")
+        json.dump({"method": "lips", "lip_ms": lag, "lip_r": round(r, 2)}, open("sync.json", "w"))
     except Exception as e:
         print("lip sync pre-check skipped:", e)
 SRC = "source.mov"

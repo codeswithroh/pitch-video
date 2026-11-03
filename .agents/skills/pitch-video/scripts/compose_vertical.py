@@ -76,6 +76,15 @@ cap_low = alpha_track("caps_low", tracks["low"], TOTAL, (1080, STRIP), d="ov_v")
 
 # ── picture ──
 full = [(p["start"], p["end"]) for p in t["plan"] if p.get("speaker") or (p.get("end_card") and not SPLIT)]
+# Merge back-to-back windows: plan times are rounded to 1 ms, so a frame on the seam (e.g. 72.6667 s between
+# 72.667-0.001 and 72.667) fell in neither window and flashed the split layout for one frame.
+merged = []
+for a, b in full:
+    if merged and a - merged[-1][1] < 0.02:
+        merged[-1] = (merged[-1][0], b)
+    else:
+        merged.append((a, b))
+full = merged
 isfull = "+".join(f"between(t,{a},{b - 0.001})" for a, b in full) or "0"
 sw, sh = face["w"], face["h"]
 fw = int(sh * 9 / 16) // 2 * 2                      # full-frame face: 9:16 crop of the source height

@@ -127,6 +127,11 @@ for i in range(len(caps) - 1):
             keep.append([cur, ca])
         cur = cb
 keep.append([cur, END])
+# Manual cuts: [[a, b], …] in source seconds, for stumbles inside continuous speech that no silence gap covers.
+# Pick a and b on quiet 10 ms frames between words; they're frame-snapped like every other cut.
+for ca, cb in P.get("cuts", []):
+    ca, cb = snap(ca), snap(cb)
+    keep = [piece for k in keep for piece in ([k] if cb <= k[0] or ca >= k[1] else [[k[0], ca], [cb, k[1]]])]
 keep = [k for k in keep if k[1] - k[0] >= 1 / FPS]
 
 def m(t):

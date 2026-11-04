@@ -79,11 +79,15 @@ if a.av_offset is None and not a.no_av_fix and not clapped:
         from common import lip_lag
         lag, r, seen = lip_lag("source.mov", 0, min(vdur, 75))
         print(f"lip sync of the raw take: {lag:+d} ms (r={r:.2f}, face in {100 * seen:.0f}% of frames)")
-        if r >= 0.2 and abs(lag) >= 50:
-            off += lag / 1000            # picture earlier than sound (lag < 0) → move the audio earlier, and vice versa
+        # The mouth opens slightly before the voice starts, so a synced take reads about -40 ms here, not 0.
+        # Correcting to 0 put the voice 40 ms early on a real take (picked by eye from a 5-offset test clip).
+        LIP_LEAD_MS = -40
+        err = lag - LIP_LEAD_MS
+        if r >= 0.2 and abs(err) >= 30:
+            off += err / 1000            # picture earlier than sound (err < 0) → move the audio earlier, and vice versa
             normalize(off)
             lag2, r2, _ = lip_lag("source.mov", 0, min(vdur, 75))
-            print(f"  corrected audio by {lag:+d} ms → now {lag2:+d} ms (r={r2:.2f})")
+            print(f"  corrected audio by {err:+d} ms → now {lag2:+d} ms (target {LIP_LEAD_MS:+d}, r={r2:.2f})")
         json.dump({"method": "lips", "lip_ms": lag, "lip_r": round(r, 2)}, open("sync.json", "w"))
     except Exception as e:
         print("lip sync pre-check skipped:", e)

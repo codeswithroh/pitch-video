@@ -118,10 +118,17 @@ try:
         joins.append(acc)
     import difflib
     missing = []
+    # ASR spells numbers out ("1,020" heard as "thousand twenty"): a digit word is present if number words are there
+    NW = {"zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen",
+          "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", "twenty", "thirty", "forty", "fifty", "sixty",
+          "seventy", "eighty", "ninety", "hundred", "thousand", "million", "and", "a"}
+    spelled = lambda x, ys: x[0].isdigit() and any(y in NW - {"and", "a"} for y in ys)
     for tag, a0, a1, b0, b1 in difflib.SequenceMatcher(None, [x[0] for x in said], hw, autojunk=False).get_opcodes():
         if tag == "delete":
-            missing += said[a0:a1]
+            missing += [x for x in said[a0:a1] if not spelled(x, hw[max(0, b0 - 3):b0 + 3])]
         elif tag == "replace":
+            if all(spelled(x, hw[b0:b1]) for x in said[a0:a1]):
+                continue
             # a word heard as something that doesn't sound like it ("worked" -> "did") is as gone as a dropped one;
             # near-misses ("pitch" -> "peach") are ASR spelling and stay
             for x in said[a0:a1]:

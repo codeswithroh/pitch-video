@@ -31,13 +31,14 @@ STRIP = 260
 full_face = [(p["start"], p["end"]) for p in t["plan"] if p.get("speaker")]
 sw0, sh0 = face["w"], face["h"]
 mouth_full = (face["cy"] + 0.13 * sh0) / sh0 * 1920                     # mouth height in a full-frame face shot
-LOW = int(min(1550, mouth_full + 420))  # caption centre: on the shirt, above the Reels/Shorts/TikTok bottom UI (310 px)
+LOW = int(min(1500, mouth_full + 420))  # caption centre: on the shirt, above Reels' name and caption lines (from ~y 1580)
+# Reels crops ~100 px off each side on tall phones: captions stay within 860 px, centred (x 110-970).
 POS = {"seam": SEAM - 20, "low": LOW}
 html = os.path.abspath("ov_v/caps.html")
 size = 64 if WORDS else 58
-box = ("display:inline-block;max-width:960px;text-transform:uppercase;letter-spacing:.5px;padding:12px 26px 14px;"
+box = ("display:inline-block;max-width:860px;text-transform:uppercase;letter-spacing:.5px;padding:12px 26px 14px;"
        "background:rgba(8,8,12,.88);border:2px solid rgba(255,255,255,.22);border-radius:14px") if WORDS else \
-      "display:inline-block;width:960px;padding:18px 26px;background:rgba(6,8,18,.82);border-radius:18px"
+      "display:inline-block;width:860px;padding:18px 26px;background:rgba(6,8,18,.82);border-radius:18px"
 open(html, "w").write(f"""<!doctype html><html><head><meta charset="utf-8">
 <link href="https://fonts.googleapis.com/css2?family={theme['body'].replace(' ', '+')}:wght@700;800;900&display=swap" rel="stylesheet">
 <style>html,body{{margin:0;width:1080px;height:{STRIP}px;background:transparent}}

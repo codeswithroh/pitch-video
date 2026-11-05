@@ -53,6 +53,15 @@ def caption_items(t):
     return t["caps"], False
 
 
+def blank_lines(blank, dur, piece=2):
+    """Concat-list lines for `dur` seconds of blank, in `piece`-second entries that add up to `dur` exactly.
+    The fps filter buffers a full RGBA frame for every duplicate of one entry (~250 MB per second at 1080p),
+    so a single 125 s entry reaches ~30 GB and the OS kills ffmpeg. Short entries keep that bounded."""
+    whole, rest = divmod(round(dur * 10000), piece * 10000)
+    lens = [piece * 10000] * whole + ([rest] if rest else [])
+    return [line for n in lens for line in (f"file '{blank}'", f"duration {n / 10000:.4f}")]
+
+
 def alpha_track(name, items, total, size, d="ov"):
     """Bake timed transparent PNGs [(start, end, png)] into one qtrle alpha track <d>/<name>.mov.
     Via the concat demuxer: feeding dozens of looped PNGs into one filter graph is 10-50x slower."""
@@ -65,11 +74,11 @@ def alpha_track(name, items, total, size, d="ov"):
         if b <= a:
             continue
         if a > cur:
-            lines += [f"file '{blank}'", f"duration {a - cur:.4f}"]
+            lines += blank_lines(blank, a - cur)
         lines += [f"file '{os.path.abspath(png)}'", f"duration {b - a:.4f}"]
         cur = b
     if cur < total:
-        lines += [f"file '{blank}'", f"duration {total - cur:.4f}"]
+        lines += blank_lines(blank, total - cur)
     lines.append(f"file '{blank}'")
     open(f"{d}/{name}.txt", "w").write("\n".join(lines) + "\n")
     run(["-f", "concat", "-safe", "0", "-i", f"{d}/{name}.txt", "-vf", f"fps={FPS},format=rgba", "-t", f"{total:.4f}",

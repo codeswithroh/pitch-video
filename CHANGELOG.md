@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- `clean.py`, the last pipeline step: keeps the finished videos and deletes every work file. It runs only after `verify.py` passed on the current output, and never in a home or git folder.
+
 ## 1.1.0 (2026-10-13)
 
 - End-card credit line ("Edited by an agent · pitch-video"), on by default. Opt out with `"credit": false`.

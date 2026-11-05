@@ -250,4 +250,6 @@ if skipped:
     print("\nRESULT: UNVERIFIED\n  - " + "\n  - ".join(skipped))
     sys.exit(2)
 print("\nRESULT: PASS")
+# clean.py only deletes the work files once this output has passed
+open(os.path.join(os.path.dirname(OUT) or ".", ".verified"), "w").write(str(int(os.path.getmtime(OUT))))
 sys.exit(0)

@@ -3,6 +3,7 @@
 ## Unreleased
 
 - `clean.py`, the last pipeline step: keeps the finished videos and deletes every work file. It runs only after `verify.py` passed on the current output, and never in a home or git folder.
+- Long blank stretches in an overlay track no longer get ffmpeg killed for running out of memory. `alpha_track` splits them into 2 s pieces, with the same frames in the track.
 
 ## 1.1.0 (2026-10-13)
 

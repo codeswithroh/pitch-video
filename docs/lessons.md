@@ -40,6 +40,9 @@ Each of these failure modes happened on a real edit. Each one is now prevented b
 **Rendering is painfully slow.** Feeding about 50 looped PNG overlays into one filter graph crawled.
 *Prevention:* overlays are concatenated into three qtrle alpha tracks (captions, cards, chips) with the concat demuxer, then overlaid once.
 
+**ffmpeg is killed while baking an overlay track.** One 125 s blank before the end card reached about 28 GB of memory footprint on an 8 GB Mac, because the fps filter holds a full RGBA frame for every duplicate of a concat entry. RSS stays near 1 GB, so watch the footprint.
+*Prevention:* `alpha_track` writes blanks as 2 s concat entries, which keeps a 1080p track under 1 GB.
+
 **ffmpeg can't draw text.** Many builds lack `drawtext`/`libass`.
 *Prevention:* all text is HTML rendered to transparent PNGs by Playwright. This also gives real fonts and CSS.
 
